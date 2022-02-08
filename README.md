@@ -2,7 +2,7 @@
 
 On the [Azure Maps Demo](https://demo.azuremaps.com/) site, you can try out Azure Maps in the following scenarios:
 * Select different map styles, including 3D and satellite tiles.
-* Zoom, pan, and rotate the map
+* Zoom, pitch, and rotate the map
 * Show trafic information
 * Drawing on the map
 * Search for point of interest
