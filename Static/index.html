@@ -1,0 +1,142 @@
+﻿<
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Azure Location Based Services, Azure Maps Demo site." />
+    <meta name="author" content="Microsoft Azure Maps" />
+
+    <title>Azure Maps Demo</title>
+
+    <link href="/favicon.ico" rel="shortcut icon" />
+    <link href="/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas.min.css" rel="stylesheet" />
+    <link href="https://atlas.microsoft.com/sdk/javascript/drawing/1/atlas-drawing.min.css" rel="stylesheet" />
+    <link href="/css/site.min.css" rel="stylesheet" />
+
+    <script>
+        (function (c, l, a, r, i, t, y) {
+            c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
+            t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+            y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+        })(window, document, "clarity", "script", "ah2giqjbmc");
+    </script>
+</head>
+<body onload="GetMap()" class="d-flex flex-column h-100">
+    <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <symbol id="geo-icon" viewBox="0 0 16 16">
+            <path fill-rule="evenodd" d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.319 1.319 0 0 0-.37.265.301.301 0 0 0-.057.09V14l.002.008a.147.147 0 0 0 .016.033.617.617 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.619.619 0 0 0 .146-.15.148.148 0 0 0 .015-.033L12 14v-.004a.301.301 0 0 0-.057-.09 1.318 1.318 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465-1.281 0-2.462-.172-3.34-.465-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411z" />
+        </symbol>
+        <symbol id="search-icon" viewBox="0 0 16 16">
+            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
+        </symbol>
+        <symbol id="phone-icon" viewBox="0 0 16 16">
+            <path d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h6zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H5z" />
+            <path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" />
+        </symbol>
+        <symbol id="link-icon" viewBox="0 0 16 16">
+            <path d="M6.354 5.5H4a3 3 0 0 0 0 6h3a3 3 0 0 0 2.83-4H9c-.086 0-.17.01-.25.031A2 2 0 0 1 7 10.5H4a2 2 0 1 1 0-4h1.535c.218-.376.495-.714.82-1z" />
+            <path d="M9 5.5a3 3 0 0 0-2.83 4h1.098A2 2 0 0 1 9 6.5h3a2 2 0 1 1 0 4h-1.535a4.02 4.02 0 0 1-.82 1H12a3 3 0 1 0 0-6H9z" />
+        </symbol>
+        <symbol id="bullseye-icon" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
+            <path d="M8 13A5 5 0 1 1 8 3a5 5 0 0 1 0 10zm0 1A6 6 0 1 0 8 2a6 6 0 0 0 0 12z" />
+            <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
+            <path d="M9.5 8a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
+        </symbol>
+        <symbol id="cursor-icon" viewBox="0 0 16 16">
+            <path d="M14.082 2.182a.5.5 0 0 1 .103.557L8.528 15.467a.5.5 0 0 1-.917-.007L5.57 10.694.803 8.652a.5.5 0 0 1-.006-.916l12.728-5.657a.5.5 0 0 1 .556.103zM2.25 8.184l3.897 1.67a.5.5 0 0 1 .262.263l1.67 3.897L12.743 3.52 2.25 8.184z" />
+        </symbol>
+        <symbol id="truck-icon" viewBox="0 0 16 16">
+            <path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" />
+        </symbol>
+    </svg>
+
+    <header>
+        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="/">
+                    <svg width="20" height="20" class="me-2 mb-1" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M32.2448 35.7947C23.525 42.5775 10.9868 40.9815 4.20483 32.2608C-2.57719 23.5401 -0.981434 11.0005 7.7383 4.21768C7.7953 4.16068 7.85228 4.10369 7.96627 4.04669C16.743 -2.6221 29.2812 -0.855162 35.9492 7.92256C42.5603 16.7003 40.9075 29.0689 32.2448 35.7947Z" fill="url(#paint0_linear)" />
+                        <path d="M23.183 5.35754L8.30811 29.0118L26.9444 21.773L23.183 5.35754Z" fill="#9CEBFF" />
+                        <path opacity="0.7" d="M20.1626 10.1454L29.3953 32.5457L23.1832 5.35754L20.1626 10.1454Z" fill="white" />
+                        <path d="M19.6494 24.623L25.2346 22.457L29.395 32.6027L19.6494 24.623Z" fill="#32BEDD" />
+                        <defs>
+                            <linearGradient id="paint0_linear" x1="20.1249" y1="40.1385" x2="20.1249" y2="0.196089" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#198AB3" />
+                                <stop offset="0.4417" stop-color="#28B7DB" />
+                                <stop offset="0.7753" stop-color="#32D4F5" />
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                    Azure Maps Demo
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarCollapse">
+                    <ul class="navbar-nav me-auto mb-2 mb-md-0">
+                        <li class="nav-item">
+                            <a class="nav-link" target="_blank" href="https://azuremaps.com">About</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" target="_blank" href="https://docs.azuremaps.com">Docs</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" target="_blank" href="https://samples.azuremaps.com">Samples</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" target="_blank" href="https://blog.azuremaps.com">Blog</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" target="_blank" href="https://updates.azuremaps.com">Updates</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main class="flex-fill" style="margin-top:32px;">
+        <div class="container-fluid p-0">
+
+            <div id="demoMap" style="width:100%; height:100%;"></div>
+
+            <div id="search">
+                <div class="card-body">
+                    <button id="locate-me-button" type="button" class="btn btn-warning float-end">
+                        <svg id="locate-me-icon" width="1.0em" height="1.0em"><use xlink:href="#bullseye-icon" /></svg>
+                        <span id="locate-me-spinner" class="spinner-grow spinner-grow-sm" style="display:none" role="status" aria-hidden="true"></span>
+                    </button>
+                    <label for="search-input" class="form-label">Search for point of interest</label>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text">
+                            <svg class="flex-shrink-0" width="1.0em" height="1.0em"><use xlink:href="#search-icon" /></svg>
+                        </span>
+                        <input id="search-input" type="search" class="form-control" placeholder="restaurants">
+                    </div>
+                </div>
+
+                <div id="results-panel" class="list-group"></div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="footer mt-auto py-3 bg-light">
+        <div class="container">
+            <p class="mb-1">Azure Maps &copy; Microsoft, but please <a target="_blank" href="https://github.com/cschotte/Azure-Maps-Demo">download</a> and customize it for yourself!</p>
+            <p class="mb-0">New to Azure Maps? <a href="https://azuremaps.com">Visit the homepage</a> or read our <a href="https://aka.ms/AzureMapsGettingStarted">getting started guide</a>.</p>
+        </div>
+    </footer>
+
+    <script src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas.min.js"></script>
+    <script src="https://atlas.microsoft.com/sdk/javascript/drawing/1/atlas-drawing.min.js"></script>
+    <script src="https://atlas.microsoft.com/sdk/javascript/service/2/atlas-service.min.js"></script>
+    <script src="/js/site.min.js"></script>
+
+</body>
+</html>

@@ -1,57 +1,37 @@
-# Project Name
+# Azure Maps Demo
 
-(short, 1-3 sentenced, description of the project)
+On the [Azure Maps Demo](https://demo.azuremaps.com/) site, you can try out Azure Maps in the following scenarios:
+* Select different map styles, including 3D and satellite tiles.
+* Zoom, pan, and rotate the map
+* Show trafic information
+* Drawing on the map
+* Search for point of interest
+* Route to this point of interest
+* Show route and weather information
+* Locate me on the map
 
-## Features
+[Try it now](https://demo.azuremaps.com/)
 
-This project framework provides the following features:
+[![screenshot](Static/images/screenshot.jpg)](https://demo.azuremaps.com/)
 
-* Feature 1
-* Feature 2
-* ...
+## Related Projects
 
-## Getting Started
+* [Azure Maps Web SDK Open modules](https://github.com/microsoft/Maps/blob/master/AzureMaps.md#open-web-sdk-modules) - A collection of open source modules that extend the Azure Maps Web SDK.
+* [Azure Maps & Azure Active Directory Samples](https://github.com/Azure-Samples/Azure-Maps-AzureAD-Samples)
+* [List of open-source Azure Maps projects](https://github.com/microsoft/Maps/blob/master/AzureMaps.md)
 
-### Prerequisites
+## Additional Resources
 
-(ideally very short, if any)
+* [Azure Maps (main site)](https://azuremaps.com/)
+* [Azure Maps Documentation](https://docs.azuremaps.com/)
+* [Azure Maps Samples](https://samples.azuremaps.com/)
+* [Azure Maps Demo](https://demo.azuremaps.com/)
+* [Azure Maps Blog](https://blog.azuremaps.com/)
+* [Azure Maps Updates](https://updates.azuremaps.com/)
+* [Azure Maps Data feedback](https://feedback.azuremaps.com/)
 
-- OS
-- Library version
-- ...
+## License
 
-### Installation
-
-(ideally very short)
-
-- npm install [package name]
-- mvn install
-- ...
-
-### Quickstart
-(Add steps to get up and running quickly)
-
-1. git clone [repository clone url]
-2. cd [respository name]
-3. ...
-
-
-## Demo
-
-A demo app is included to show how to use the project.
-
-To run the demo, follow these steps:
-
-(Add steps to start up the demo)
-
-1.
-2.
-3.
-
-## Resources
-
-(Any additional resources or related projects)
-
-- Link to supporting information
-- Link to similar sample
-- ...
+MIT
+ 
+See [License](LICENSE.md) for full license text.
