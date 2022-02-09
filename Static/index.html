@@ -1,5 +1,4 @@
-﻿<
-<!doctype html>
+﻿<<!doctype html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
@@ -25,7 +24,6 @@
 </head>
 <body onload="GetMap()" class="d-flex flex-column h-100">
     <!-- Icons from https://icons.getbootstrap.com/ -->
-    <!-- Colors from https://www.colourlovers.com/ -->
     <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
         <symbol id="search-icon" viewBox="0 0 16 16" fill="black">
             <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
@@ -66,6 +64,9 @@
             <path d="M8 16.016a7.5 7.5 0 0 0 1.962-14.74A1 1 0 0 0 9 0H7a1 1 0 0 0-.962 1.276A7.5 7.5 0 0 0 8 16.016zm6.5-7.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z" />
             <path d="m6.94 7.44 4.95-2.83-2.83 4.95-4.949 2.83 2.828-4.95z" />
         </symbol>
+        <symbol id="balloon-icon" viewBox="0 0 16 16" fill="black">
+            <path fill-rule="evenodd" d="M8 9.984C10.403 9.506 12 7.48 12 5a4 4 0 0 0-8 0c0 2.48 1.597 4.506 4 4.984ZM13 5c0 2.837-1.789 5.227-4.52 5.901l.244.487a.25.25 0 1 1-.448.224l-.008-.017c.008.11.02.202.037.29.054.27.161.488.419 1.003.288.578.235 1.15.076 1.629-.157.469-.422.867-.588 1.115l-.004.007a.25.25 0 1 1-.416-.278c.168-.252.4-.6.533-1.003.133-.396.163-.824-.049-1.246l-.013-.028c-.24-.48-.38-.758-.448-1.102a3.177 3.177 0 0 1-.052-.45l-.04.08a.25.25 0 1 1-.447-.224l.244-.487C4.789 10.227 3 7.837 3 5a5 5 0 0 1 10 0Zm-6.938-.495a2.003 2.003 0 0 1 1.443-1.443C7.773 2.994 8 2.776 8 2.5c0-.276-.226-.504-.498-.459a3.003 3.003 0 0 0-2.46 2.461c-.046.272.182.498.458.498s.494-.227.562-.495Z" />
+        </symbol>
     </svg>
 
     <header>
@@ -93,19 +94,19 @@
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <ul class="navbar-nav me-auto mb-2 mb-md-0">
                         <li class="nav-item">
-                            <a class="nav-link" target="_blank" href="https://azuremaps.com">About</a>
+                            <a class="nav-link" target="_blank" href="https://azuremaps.com" title="About Azure Maps">About</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" target="_blank" href="https://docs.azuremaps.com">Docs</a>
+                            <a class="nav-link" target="_blank" href="https://docs.azuremaps.com" title="About Azure Documentation">Docs</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" target="_blank" href="https://samples.azuremaps.com">Samples</a>
+                            <a class="nav-link" target="_blank" href="https://samples.azuremaps.com" title="About Azure Code Samples">Samples</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" target="_blank" href="https://blog.azuremaps.com">Blog</a>
+                            <a class="nav-link" target="_blank" href="https://blog.azuremaps.com" title="About Azure Blog">Blog</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" target="_blank" href="https://updates.azuremaps.com">Updates</a>
+                            <a class="nav-link" target="_blank" href="https://updates.azuremaps.com" title="About Azure Updates">Updates</a>
                         </li>
                     </ul>
                 </div>
@@ -146,8 +147,8 @@
 
     <footer class="footer mt-auto py-3 bg-light">
         <div class="container">
-            <p class="mb-1">Azure Maps &copy; Microsoft, but please <a target="_blank" href="https://github.com/Azure-Samples/Azure-Maps-Demo">download</a> and customize it for yourself!</p>
-            <p class="mb-0">New to Azure Maps? <a href="https://azuremaps.com">Visit the homepage</a> or read our <a href="https://aka.ms/AzureMapsGettingStarted">getting started guide</a>.</p>
+            <p class="mb-1">Azure Maps &copy; Microsoft, but please <a target="_blank" href="https://github.com/Azure-Samples/Azure-Maps-Demo" title="GitHub">download</a> and customize it for yourself!</p>
+            <p class="mb-0">New to Azure Maps? <a href="https://azuremaps.com" title="About Azure Maps">Visit the homepage</a> or read our <a href="https://aka.ms/AzureMapsGettingStarted" title="Azure Maps getting started guide">getting started guide</a>.</p>
         </div>
     </footer>
 

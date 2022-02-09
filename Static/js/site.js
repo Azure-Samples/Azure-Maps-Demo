@@ -137,9 +137,11 @@ function GetMap() {
 
         //Add layers for rendering the route.
         var routeLayer = new atlas.layer.LineLayer(datasource, null, {
-            strokeColor: 'rgb(108, 50, 255)',
-            strokeWidth: 5,
-            filter: ['any', ['==', ['geometry-type'], 'LineString'], ['==', ['geometry-type'], 'MultiLineString']]
+            strokeColor: ['get', 'strokeColor'],
+            strokeWidth: ['get', 'strokeWidth'],
+            lineJoin: 'round',
+            lineCap: 'round',
+            filter: ['==', 'type', 'routeLayer']
         });
 
         var routeLayerPoint = new atlas.layer.SymbolLayer(datasource, null, {
@@ -167,7 +169,7 @@ function GetMap() {
             filter: ['==', 'layer', 'locateMe']
         });
 
-        map.layers.add([loacteMeSymbolLayer, loacteMeLayer , poiLayer, streetLayer, addressRangeLayer, geographyLayer, crossStreetLayer, routeLayerPoint, routeLayer]);
+        map.layers.add([loacteMeSymbolLayer, loacteMeLayer, poiLayer, streetLayer, addressRangeLayer, geographyLayer, crossStreetLayer, routeLayerPoint, routeLayer], 'labels');
 
         //Add a click event to the search layer and show a popup when a result is clicked.
         map.events.add("click", poiLayer, function (e) {
@@ -379,7 +381,7 @@ function search() {
                     break;
             }
 
-            html += `<a href="#" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true" onclick="itemClicked('${r.id}')" onmouseover="itemHovered('${r.id}')">
+            html += `<a href="#" class="list-group-item list-group-item-action d-flex gap-3 py-3"  onclick="itemClicked('${r.id}')" onmouseover="itemHovered('${r.id}')">
                     <svg class="flex-shrink-0" width="2.0em" height="2.0em"><use xlink:href="#${icon}" /></svg>
                     <div class="d-flex gap-2 w-100 justify-content-between">
                         <div>
@@ -424,8 +426,16 @@ function addressClicked(id) {
         instructionsType: 'text',
         traffic: true
     }).then((directions) => {
+        //Get data features from response
         var data = directions.geojson.getFeatures();
-        datasource.add(data);
+
+        //Get the route line and add some style properties to it.  
+        var routeLine = data.features[0];
+        routeLine.properties.strokeColor = '#B76DAB';
+        routeLine.properties.strokeWidth = 5;
+        routeLine.properties.type = 'routeLayer';
+
+        datasource.add(routeLine);
 
         //if (r && r.routes && r.routes.length > 0) {
         //    var route = r.routes[0];
@@ -511,9 +521,17 @@ function truckClicked(id) {
         traffic: true,
         travelMode: 'truck'
     }).then((directions) => {
-        //Get the route data as GeoJSON and add it to the data source.
+        //Get data features from response
         var data = directions.geojson.getFeatures();
-        datasource.add(data);
+
+        //Get the route line and add some style properties to it.  
+        var routeLine = data.features[0];
+        routeLine.properties.strokeColor = '#2272B9';
+        routeLine.properties.strokeWidth = 9;
+        routeLine.properties.type = 'routeLayer';
+
+        //Add the route line to the data source. We want this to render below the car route which will likely be added to the data source faster, so insert it at index 0.
+        datasource.add(routeLine, 0);
     });
 
     popup.close(map);
@@ -549,9 +567,18 @@ async function showPopupPOI(shape) {
             break;
     }
 
-    //Get weather data.
-    var requestUrl = weatherUrl.replace('{query}', position[1] + ',' + position[0]);
-    var weather = await processRequest(requestUrl).then(response => {
+    //Get Weather data
+    var weatherRequestUrl = weatherUrl.replace('{query}', position[1] + ',' + position[0]);
+    var weather = await processRequest(weatherRequestUrl).then(response => {
+        if (response && response.results && response.results[0]) {
+            return response.results[0];
+        }
+        return null;
+    });
+
+    //Get Air Quality data
+    var airQualityRequestUrl = airQualityUrl.replace('{query}', position[1] + ',' + position[0]);
+    var airQuality = await processRequest(airQualityRequestUrl).then(response => {
         if (response && response.results && response.results[0]) {
             return response.results[0];
         }
@@ -564,40 +591,64 @@ async function showPopupPOI(shape) {
                 </div>
                 <div class="card-body">
                     <div class="list-group">
-                        <a href="#" onclick="addressClicked('${shape.data.id}')" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+                        <a href="#" onclick="addressClicked('${shape.data.id}')" class="list-group-item list-group-item-action d-flex gap-3 py-3" >
                             <svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#cursor-icon" /></svg>
                             <div class="d-flex gap-2 w-100 justify-content-between">
                                 <div>
                                     <h6 class="mb-0">Address</h6>
-                                    <p class="mb-0 opacity-75">${properties.address.freeformAddress}</p>
+                                    <p class="mb-0 opacity-75 text-wrap">${properties.address.freeformAddress}</p>
                                 </div>
                             </div>
+                            <small class="opacity-50 text-nowrap">Directions</small>
                         </a>
-                        <a target="_blank" href="tel:${phone.replace(/\s/g, '')}" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${phone === '' ? 'visually-hidden' : ''}" aria-current="true">
+                        <a href="#" onclick="truckClicked('${shape.data.id}')" class="list-group-item list-group-item-action d-flex gap-3 py-3" >
+                            <svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#truck-icon" /></svg>
+                            <div class="d-flex gap-2 w-100 justify-content-between">
+                                <div>
+                                    <h6 class="mb-0">Truck Route</h6>
+                                    <p class="mb-0 opacity-75 text-wrap">Route that is optimized for commercial vehicles, like for trucks.</p>
+                                </div>
+                            </div>
+                            <small class="opacity-50 text-nowrap">Directions</small>
+                        </a>
+                        <a target="_blank" href="tel:${phone.replace(/\s/g, '')}" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${phone === '' ? 'visually-hidden' : ''}" >
                             <svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#phone-icon" /></svg>
                             <div class="d-flex gap-2 w-100 justify-content-between">
                                 <div>
                                     <h6 class="mb-0">Phone</h6>
                                     <p class="mb-0 opacity-75">${phone}</p>
                                 </div>
+                                <small class="opacity-50 text-nowrap">POI</small>
                             </div>
                         </a>
-                        <a target="_blank" href="http://${url.replace(/^https?\:\/\//i, '')}" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${url === '' ? 'visually-hidden' : ''}" aria-current="true">
+                        <a target="_blank" href="http://${url.replace(/^https?\:\/\//i, '')}" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${url === '' ? 'visually-hidden' : ''}" >
                             <svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#link-icon" /></svg>
                             <div class="d-flex gap-2 w-100 justify-content-between">
                                 <div>
                                     <h6 class="mb-0">Website</h6>
                                     <p class="mb-0 opacity-75">${url.replace(/^https?\:\/\//i, '')}</p>
                                 </div>
+                                <small class="opacity-50 text-nowrap">POI</small>
                             </div>
                         </a>
-                        <a href="#" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${!weather ? 'visually-hidden' : ''}" aria-current="true">
+                        <a target="_blank" href="https://docs.microsoft.com/rest/api/maps/weather/get-current-conditions" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${!weather ? 'visually-hidden' : ''}" >
                             <img width="32" height="32" class="flex-shrink-0" src="/images/icons/weather-black/${weather.iconCode}.png"/>
                             <div class="d-flex gap-2 w-100 justify-content-between">
                                 <div>
                                     <h6 class="mb-0">${weather.phrase}</h6>
-                                    <p class="mb-0 opacity-75">Temperature: ${weather.temperature.value}&#176;${weather.temperature.unit}, Wind: ${weather.wind.speed.value} ${weather.wind.speed.unit}, Clouds: ${weather.cloudCover}&#37</p>
+                                    <p class="mb-0 opacity-75 text-wrap">Temperature ${weather.temperature.value}&#176;${weather.temperature.unit} and feels like ${weather.realFeelTemperature.value}&#176;${weather.realFeelTemperature.unit}</p>
                                 </div>
+                                <small class="opacity-50 text-nowrap">Weather</small>
+                            </div>
+                        </a>
+                        <a target="_blank" href="https://docs.microsoft.com//rest/api/maps/weather/get-current-air-quality" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${!airQuality ? 'visually-hidden' : ''}" >
+                            <svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#balloon-icon" /></svg>
+                            <div class="d-flex gap-2 w-100 justify-content-between">
+                                <div>
+                                    <h6 class="mb-0">${airQuality.category}</h6>
+                                    <p class="mb-0 opacity-75 text-wrap">${airQuality.description}</p>
+                                </div>
+                                <small class="opacity-50 text-nowrap">Air Quality</small>
                             </div>
                         </a>
                     </div>
