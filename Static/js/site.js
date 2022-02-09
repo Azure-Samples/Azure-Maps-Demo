@@ -4,12 +4,14 @@
 var userPosition = [-0.076083, 51.508120]
 var userPositionUpdated = false;
 
-var weatherAlongRouteUrl = 'https://{azMapsDomain}/weather/route/json?api-version=1.0&query={query}';
+// Azure Weather Services
+var weatherUrl = 'https://{azMapsDomain}/weather/currentConditions/json?api-version=1.1&query={query}';
+var airQualityUrl = 'https://{azMapsDomain}/weather/airQuality/current/json?api-version=1.1&query={query}';
 
-//The minimum number of characters needed in the search input before a search is performed.
+// The minimum number of characters needed in the search input before a search is performed.
 var minSearchInputLength = 3;
 
-//The number of ms between key strokes to wait before performing a search.
+// The number of ms between key strokes to wait before performing a search.
 var keyStrokeDelay = 250;
 
 function GetMap() {
@@ -87,7 +89,7 @@ function GetMap() {
         var compassIcon = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#C85EAE" viewBox="0 0 16 16"><path d="M8 16.016a7.5 7.5 0 0 0 1.962-14.74A1 1 0 0 0 9 0H7a1 1 0 0 0-.962 1.276A7.5 7.5 0 0 0 8 16.016zm6.5-7.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z" /><path d="m6.94 7.44 4.95-2.83-2.83 4.95-4.949 2.83 2.828-4.95z" /></svg>');
         map.imageSprite.add('compass-icon', compassIcon);
 
-        //Add layers for rendering the search results and routing.
+        //Add layers for rendering the search results.
         var poiLayer = new atlas.layer.SymbolLayer(datasource, null, {
             iconOptions: {
                 image: 'geo-icon',
@@ -124,7 +126,6 @@ function GetMap() {
             filter: ['==', 'type', 'Geography']
         });
 
-
         var crossStreetLayer = new atlas.layer.SymbolLayer(datasource, null, {
             iconOptions: {
                 image: 'signpost2-icon',
@@ -134,8 +135,7 @@ function GetMap() {
             filter: ['==', 'type', 'Cross Street']
         });
 
-
-        //Add a layer for rendering the route.
+        //Add layers for rendering the route.
         var routeLayer = new atlas.layer.LineLayer(datasource, null, {
             strokeColor: 'rgb(108, 50, 255)',
             strokeWidth: 5,
@@ -171,14 +171,36 @@ function GetMap() {
 
         //Add a click event to the search layer and show a popup when a result is clicked.
         map.events.add("click", poiLayer, function (e) {
-            //Make sure the event occurred on a shape feature.
+            if (e.shapes && e.shapes.length > 0) {
+                showPopupPOI(e.shapes[0]);
+            }
+        });
+
+        map.events.add("click", streetLayer, function (e) {
+            if (e.shapes && e.shapes.length > 0) {
+                showPopupPOI(e.shapes[0]);
+            }
+        });
+
+        map.events.add("click", addressRangeLayer, function (e) {
+            if (e.shapes && e.shapes.length > 0) {
+                showPopupPOI(e.shapes[0]);
+            }
+        });
+
+        map.events.add("click", geographyLayer, function (e) {
+            if (e.shapes && e.shapes.length > 0) {
+                showPopupPOI(e.shapes[0]);
+            }
+        });
+
+        map.events.add("click", crossStreetLayer, function (e) {
             if (e.shapes && e.shapes.length > 0) {
                 showPopupPOI(e.shapes[0]);
             }
         });
 
         map.events.add("click", routeLayerPoint, function (e) {
-            //Make sure the event occurred on a shape feature.
             if (e.shapes && e.shapes.length > 0) {
                 showPopupRoutePoint(e.shapes[0]);
             }
@@ -229,7 +251,6 @@ function GetMap() {
 }
 
 function clearSerach() {
-    //Remove any previous results from the map.
     resultsPanel.innerHTML = '';
     datasource.clear();
     popup.close();
@@ -277,20 +298,7 @@ function locateMe(e) {
 
     }, function (error) {
         //If an error occurs when trying to access the users position information, display an error message.
-        switch (error.code) {
-            case error.PERMISSION_DENIED:
-                alert('User denied the request for Geolocation.');
-                break;
-            case error.POSITION_UNAVAILABLE:
-                alert('Position information is unavailable.');
-                break;
-            case error.TIMEOUT:
-                alert('The request to get user position timed out.');
-                break;
-            case error.UNKNOWN_ERROR:
-                alert('The request to get user position has an unknown error.');
-                break;
-        }
+        alert('User position information is unavailable!');
 
         locateMeButton.disabled = false;
         locateMeIcon.style.display = 'block';
@@ -371,7 +379,7 @@ function search() {
                     break;
             }
 
-            html += `<a href="#" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true" onclick="itemClicked('${r.id}')">
+            html += `<a href="#" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true" onclick="itemClicked('${r.id}')" onmouseover="itemHovered('${r.id}')">
                     <svg class="flex-shrink-0" width="2.0em" height="2.0em"><use xlink:href="#${icon}" /></svg>
                     <div class="d-flex gap-2 w-100 justify-content-between">
                         <div>
@@ -398,6 +406,12 @@ function itemClicked(id) {
     showPopupPOI(shape);
 }
 
+function itemHovered(id) {
+    //Show a popup when hovering an item in the result list.
+    var shape = datasource.getShapeById(id);
+    showPopupPOI(shape);
+}
+
 function addressClicked(id) {
     //Center the map over the clicked item from the result list.
     var shape = datasource.getShapeById(id);
@@ -409,85 +423,78 @@ function addressClicked(id) {
         maxAlternatives: 0,
         instructionsType: 'text',
         traffic: true
-    }).then((r) => {
-        if (r && r.routes && r.routes.length > 0) {
-            var route = r.routes[0];
-            var routeCoordinates = [];
-            for (var legIndex = 0; legIndex < route.legs.length; legIndex++) {
-                var leg = route.legs[legIndex];
+    }).then((directions) => {
+        var data = directions.geojson.getFeatures();
+        datasource.add(data);
 
-                //Convert the route point data into a format that the map control understands.
-                var legCoordinates = leg.points.map(function (point) {
-                    return [point.longitude, point.latitude];
-                });
+        //if (r && r.routes && r.routes.length > 0) {
+        //    var route = r.routes[0];
+        //    var routeCoordinates = [];
+        //    for (var legIndex = 0; legIndex < route.legs.length; legIndex++) {
+        //        var leg = route.legs[legIndex];
 
-                //Combine the route point data for each route leg together to form a single path.
-                routeCoordinates = routeCoordinates.concat(legCoordinates);
-            }
+        //        //Convert the route point data into a format that the map control understands.
+        //        var legCoordinates = leg.points.map(function (point) {
+        //            return [point.longitude, point.latitude];
+        //        });
 
-            //Create a line from the route path points and add it to the data source.
-            routeLine = new atlas.data.LineString(routeCoordinates);
+        //        //Combine the route point data for each route leg together to form a single path.
+        //        routeCoordinates = routeCoordinates.concat(legCoordinates);
+        //    }
 
-            //Display the route line on the map.
-            datasource.add(routeLine);
+        //    //Create a line from the route path points and add it to the data source.
+        //    routeLine = new atlas.data.LineString(routeCoordinates);
 
-            //Have the map focus on the route. 
-            map.setCamera({
-                bounds: atlas.data.BoundingBox.fromData(routeLine),
-                padding: 80
-            });
+        //    //Display the route line on the map.
+        //    datasource.add(routeLine);
 
-            var waypoints = [];
-            var alongRouteWaypoints = [];
+        //    //Have the map focus on the route. 
+        //    map.setCamera({
+        //        bounds: atlas.data.BoundingBox.fromData(routeLine),
+        //        padding: 80
+        //    });
 
-            var heading = 0;
+        //    var waypoints = [];
+        //    var alongRouteWaypoints = [];
+        //    var heading = 0;
 
-            //Loop through up to 60 instructions and create waypoints.
-            //Capture the waypoint information needed for the weather along route API which is "latitude,longitude,ETA (in minutes),heading".
-            var len = Math.min(route.guidance.instructions.length, 60);
+        //    //Loop through up to 60 instructions and create waypoints.
+        //    //Capture the waypoint information needed for the weather along route API which is "latitude,longitude,ETA (in minutes),heading".
+        //    var len = Math.min(route.guidance.instructions.length, 60);
 
-            for (var i = 0; i < len; i++) {
-                var ins = route.guidance.instructions[i];
-                ins.layer = "routePoint";
+        //    for (var i = 0; i < len; i++) {
+        //        var ins = route.guidance.instructions[i];
+        //        ins.layer = "routePoint";
 
-                var timeInMinutes = Math.round(ins.travelTimeInSeconds / 60);
+        //        var pos = [ins.point.longitude, ins.point.latitude];
 
-                //Don't get weather for instructions that are more than two hours away from the start of the route.
-                if (timeInMinutes > 120) {
+        //        waypoints.push(new atlas.data.Feature(new atlas.data.Point(pos), ins));
 
-                    // BUG? shoud it be: continue;
-                    break;
-                }
+        //        //Calculate the heading.
+        //        if (i < route.guidance.instructions.length - 1) {
+        //            var ins2 = route.guidance.instructions[i + 1];
+        //            heading = Math.round(atlas.math.getHeading(pos, [ins2.point.longitude, ins2.point.latitude]));
+        //        }
 
-                var pos = [ins.point.longitude, ins.point.latitude];
+        //        alongRouteWaypoints.push(`${ins.point.latitude},${ins.point.longitude},${timeInMinutes},${heading}`);
+        //    }
 
-                waypoints.push(new atlas.data.Feature(new atlas.data.Point(pos), ins));
+        //    //Get weather data.
+        //    var requestUrl = weatherAlongRouteUrl.replace('{query}', alongRouteWaypoints.join(':'));
 
-                //Calculate the heading.
-                if (i < route.guidance.instructions.length - 1) {
-                    var ins2 = route.guidance.instructions[i + 1];
-                    heading = Math.round(atlas.math.getHeading(pos, [ins2.point.longitude, ins2.point.latitude]));
-                }
+        //    processRequest(requestUrl).then(response => {
+        //        if (response && response.waypoints && response.waypoints.length === waypoints.length) {
 
-                alongRouteWaypoints.push(`${ins.point.latitude},${ins.point.longitude},${timeInMinutes},${heading}`);
-            }
+        //            //Combine the weather data in with each waypoint.
+        //            for (var i = 0, len = response.waypoints.length; i < len; i++) {
+        //                Object.assign(waypoints[i].properties, response.waypoints[i]);
+        //            }
 
-            //Get weather data.
-            var requestUrl = weatherAlongRouteUrl.replace('{query}', alongRouteWaypoints.join(':'));
-
-            processRequest(requestUrl).then(response => {
-                if (response && response.waypoints && response.waypoints.length === waypoints.length) {
-
-                    //Combine the weather data in with each waypoint.
-                    for (var i = 0, len = response.waypoints.length; i < len; i++) {
-                        Object.assign(waypoints[i].properties, response.waypoints[i]);
-                    }
-
-                    //Render the waypoints on the map.
-                    datasource.add(waypoints);
-                }
-            });
-        }
+        //            //Render the waypoints on the map.
+        //            datasource.add(waypoints);
+        //        }
+        //    });
+        //}
     });
 
     popup.close(map);
@@ -503,7 +510,7 @@ function truckClicked(id) {
     routeURL.calculateRouteDirections(atlas.service.Aborter.timeout(10000), [startPoint, endPoint], {
         traffic: true,
         travelMode: 'truck'
-    }).then((r) => {
+    }).then((directions) => {
         //Get the route data as GeoJSON and add it to the data source.
         var data = directions.geojson.getFeatures();
         datasource.add(data);
@@ -512,20 +519,96 @@ function truckClicked(id) {
     popup.close(map);
 }
 
-function showPopupPOI(shape) {
+async function showPopupPOI(shape) {
     popup.close();
 
     var properties = shape.getProperties();
+    var position = shape.getCoordinates();
 
-    if (!properties || !properties.poi) return;
+    var name = 'Location';
+    var dist = properties.dist < 1 ? 0 : (properties.dist / 1000).toFixed(1);
+    var phone = '';
+    var url = '';
 
-    if (!properties.poi.phone) properties.poi.phone = '';
-    if (!properties.poi.url) properties.poi.url = '';
+    switch (properties.type) {
+        case 'POI':
+            name = properties.poi.name;
+            if (properties.poi.phone) phone = properties.poi.phone;
+            if (properties.poi.url) url = properties.poi.url;
+            break;
+        case 'Street':
+        case 'Point Address':
+        case 'Cross Street':
+            name = properties.address.streetName;
+            break;
+        case 'Geography':
+            name = properties.address.country;
+            break;
+        case 'Address Range':
+            name = 'Address Range';
+            break;
+    }
 
-    var html = `<div class="card" style="width:420px;"><div class="card-header"><h5 class="card-title">${properties.poi.name}</h5></div><div class="card-body"><div class="list-group"><a href="#" onclick="addressClicked('${shape.data.id}')" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true"><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#cursor-icon"/></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Address</h6><p class="mb-0 opacity-75">${properties.address.freeformAddress}</p></div></div></a><a target="_blank" href="tel:${properties.poi.phone.replace(/\s/g, '')}" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${properties.poi.phone === '' ? 'visually-hidden' : ''}" aria-current="true"><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#phone-icon"/></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Phone</h6><p class="mb-0 opacity-75">${properties.poi.phone}</p></div></div></a><a target="_blank" href="http://${properties.poi.url.replace(/^https?\:\/\//i, '')}" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${properties.poi.url === '' ? 'visually-hidden' : ''}" aria-current="true"><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#link-icon"/></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Website</h6><p class="mb-0 opacity-75">${properties.poi.url.replace(/^https?\:\/\//i, '')}</p></div></div></a></div></div><div class="card-footer text-muted">${properties.dist.toFixed()} meters away from ${userPositionUpdated === true ? 'you' : 'the Tower of London'}</div></div>`;
+    //Get weather data.
+    var requestUrl = weatherUrl.replace('{query}', position[1] + ',' + position[0]);
+    var weather = await processRequest(requestUrl).then(response => {
+        if (response && response.results && response.results[0]) {
+            return response.results[0];
+        }
+        return null;
+    });
+
+    var html = `<div class="card" style="width:420px;">
+                <div class="card-header">
+                    <h5 class="card-title">${name}</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        <a href="#" onclick="addressClicked('${shape.data.id}')" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true">
+                            <svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#cursor-icon" /></svg>
+                            <div class="d-flex gap-2 w-100 justify-content-between">
+                                <div>
+                                    <h6 class="mb-0">Address</h6>
+                                    <p class="mb-0 opacity-75">${properties.address.freeformAddress}</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a target="_blank" href="tel:${phone.replace(/\s/g, '')}" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${phone === '' ? 'visually-hidden' : ''}" aria-current="true">
+                            <svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#phone-icon" /></svg>
+                            <div class="d-flex gap-2 w-100 justify-content-between">
+                                <div>
+                                    <h6 class="mb-0">Phone</h6>
+                                    <p class="mb-0 opacity-75">${phone}</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a target="_blank" href="http://${url.replace(/^https?\:\/\//i, '')}" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${url === '' ? 'visually-hidden' : ''}" aria-current="true">
+                            <svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#link-icon" /></svg>
+                            <div class="d-flex gap-2 w-100 justify-content-between">
+                                <div>
+                                    <h6 class="mb-0">Website</h6>
+                                    <p class="mb-0 opacity-75">${url.replace(/^https?\:\/\//i, '')}</p>
+                                </div>
+                            </div>
+                        </a>
+                        <a href="#" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${!weather ? 'visually-hidden' : ''}" aria-current="true">
+                            <img width="32" height="32" class="flex-shrink-0" src="/images/icons/weather-black/${weather.iconCode}.png"/>
+                            <div class="d-flex gap-2 w-100 justify-content-between">
+                                <div>
+                                    <h6 class="mb-0">${weather.phrase}</h6>
+                                    <p class="mb-0 opacity-75">Temperature: ${weather.temperature.value}&#176;${weather.temperature.unit}, Wind: ${weather.wind.speed.value} ${weather.wind.speed.unit}, Clouds: ${weather.cloudCover}&#37</p>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer text-muted">
+                    ${dist} km away from ${userPositionUpdated === true ? 'you' : 'the Tower of London'}
+                </div>
+            </div>`;
 
     popup.setOptions({
-        position: shape.getCoordinates(),
+        position: position,
         content: html
     });
 
