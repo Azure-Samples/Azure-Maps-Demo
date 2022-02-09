@@ -15,7 +15,7 @@
     padding: 0;
     background-color: #fff;
     overflow-y: auto;
-    max-height: calc(100vh - 275px);
+    max-height: calc(100vh - 320px);
 }
 
 .weather-icon {

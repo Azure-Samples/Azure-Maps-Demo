@@ -69,15 +69,71 @@ function GetMap() {
         datasource = new atlas.source.DataSource();
         map.sources.add(datasource);
 
-        //Add a layer for rendering the search results.
-        var searchLayer = new atlas.layer.SymbolLayer(datasource, null, {
+        // Icons from https://icons.getbootstrap.com/
+        // Colors from https://www.colourlovers.com/
+        // #517CED, #04257C, #862A6F, #424F85, #C85EAE
+        var geoIcon = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#517CED" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.319 1.319 0 0 0-.37.265.301.301 0 0 0-.057.09V14l.002.008a.147.147 0 0 0 .016.033.617.617 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.619.619 0 0 0 .146-.15.148.148 0 0 0 .015-.033L12 14v-.004a.301.301 0 0 0-.057-.09 1.318 1.318 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465-1.281 0-2.462-.172-3.34-.465-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411z" /></svg>');
+        map.imageSprite.add('geo-icon', geoIcon);
+
+        var signpostIcon = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#04257C" viewBox="0 0 16 16"><path d="M7 1.414V4H2a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h5v6h2v-6h3.532a1 1 0 0 0 .768-.36l1.933-2.32a.5.5 0 0 0 0-.64L13.3 4.36a1 1 0 0 0-.768-.36H9V1.414a1 1 0 0 0-2 0zM12.532 5l1.666 2-1.666 2H2V5h10.532z" /></svg>');
+        map.imageSprite.add('signpost-icon', signpostIcon);
+
+        var signpost2Icon = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#862A6F" viewBox="0 0 16 16"><path d="M7 7V1.414a1 1 0 0 1 2 0V2h5a1 1 0 0 1 .8.4l.975 1.3a.5.5 0 0 1 0 .6L14.8 5.6a1 1 0 0 1-.8.4H9v10H7v-5H2a1 1 0 0 1-.8-.4L.225 9.3a.5.5 0 0 1 0-.6L1.2 7.4A1 1 0 0 1 2 7h5zm1 3V8H2l-.75 1L2 10h6zm0-5h6l.75-1L14 3H8v2z" /></svg>');
+        map.imageSprite.add('signpost2-icon', signpost2Icon);
+
+        var mapIcon = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#424F85" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15.817.113A.5.5 0 0 1 16 .5v14a.5.5 0 0 1-.402.49l-5 1a.502.502 0 0 1-.196 0L5.5 15.01l-4.902.98A.5.5 0 0 1 0 15.5v-14a.5.5 0 0 1 .402-.49l5-1a.5.5 0 0 1 .196 0L10.5.99l4.902-.98a.5.5 0 0 1 .415.103zM10 1.91l-4-.8v12.98l4 .8V1.91zm1 12.98 4-.8V1.11l-4 .8v12.98zm-6-.8V1.11l-4 .8v12.98l4-.8z" /></svg>');
+        map.imageSprite.add('map-icon', mapIcon);
+
+        var compassIcon = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#C85EAE" viewBox="0 0 16 16"><path d="M8 16.016a7.5 7.5 0 0 0 1.962-14.74A1 1 0 0 0 9 0H7a1 1 0 0 0-.962 1.276A7.5 7.5 0 0 0 8 16.016zm6.5-7.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z" /><path d="m6.94 7.44 4.95-2.83-2.83 4.95-4.949 2.83 2.828-4.95z" /></svg>');
+        map.imageSprite.add('compass-icon', compassIcon);
+
+        //Add layers for rendering the search results and routing.
+        var poiLayer = new atlas.layer.SymbolLayer(datasource, null, {
             iconOptions: {
-                image: 'marker-darkblue',
+                image: 'geo-icon',
                 anchor: 'center',
                 allowOverlap: true
             },
             filter: ['==', 'type', 'POI']
         });
+
+        var streetLayer = new atlas.layer.SymbolLayer(datasource, null, {
+            iconOptions: {
+                image: 'signpost-icon',
+                anchor: 'center',
+                allowOverlap: true
+            },
+            filter: ['any', ['==', 'type', 'Street'], ['==', 'type', 'Point Address']]
+        });
+
+        var addressRangeLayer = new atlas.layer.SymbolLayer(datasource, null, {
+            iconOptions: {
+                image: 'map-icon',
+                anchor: 'center',
+                allowOverlap: true
+            },
+            filter: ['==', 'type', 'Address Range']
+        });
+
+        var geographyLayer = new atlas.layer.SymbolLayer(datasource, null, {
+            iconOptions: {
+                image: 'compass-icon',
+                anchor: 'center',
+                allowOverlap: true
+            },
+            filter: ['==', 'type', 'Geography']
+        });
+
+
+        var crossStreetLayer = new atlas.layer.SymbolLayer(datasource, null, {
+            iconOptions: {
+                image: 'signpost2-icon',
+                anchor: 'center',
+                allowOverlap: true
+            },
+            filter: ['==', 'type', 'Cross Street']
+        });
+
 
         //Add a layer for rendering the route.
         var routeLayer = new atlas.layer.LineLayer(datasource, null, {
@@ -111,10 +167,10 @@ function GetMap() {
             filter: ['==', 'layer', 'locateMe']
         });
 
-        map.layers.add([routeLayerPoint, routeLayer, loacteMeLayer, loacteMeSymbolLayer, searchLayer]);
+        map.layers.add([loacteMeSymbolLayer, loacteMeLayer , poiLayer, streetLayer, addressRangeLayer, geographyLayer, crossStreetLayer, routeLayerPoint, routeLayer]);
 
         //Add a click event to the search layer and show a popup when a result is clicked.
-        map.events.add("click", searchLayer, function (e) {
+        map.events.add("click", poiLayer, function (e) {
             //Make sure the event occurred on a shape feature.
             if (e.shapes && e.shapes.length > 0) {
                 showPopupPOI(e.shapes[0]);
@@ -132,7 +188,7 @@ function GetMap() {
         var drawingManager = new atlas.drawing.DrawingManager(map, {
             interactionType: 'click',
             toolbar: new atlas.control.DrawingToolbar({
-                position: 'top-right'
+                position: 'bottom-right'
             })
         });
 
@@ -209,7 +265,8 @@ function locateMe(e) {
         map.setCamera({
             center: userPosition,
             zoom: 15,
-            pitch: 0
+            pitch: 0,
+            bearing: 0
         });
 
         userPositionUpdated = true;
@@ -264,10 +321,10 @@ function search() {
 
     var query = searchInput.value;
 
-    searchURL.searchPOI(atlas.service.Aborter.timeout(10000), query, {
+    searchURL.searchFuzzy(atlas.service.Aborter.timeout(10000), query, {
         lon: map.getCamera().center[0],
         lat: map.getCamera().center[1],
-        maxFuzzyLevel: 4,
+        maxFuzzyLevel: 3,
         view: 'Auto'
     }).then((results) => {
 
@@ -285,17 +342,47 @@ function search() {
         var html = "";
         for (var i = 0; i < data.features.length; i++) {
             var r = data.features[i];
-            html += `<a href="#" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true" onclick="itemClicked('${r.id}')" onmouseover="itemHovered('${r.id}')"><svg class="flex-shrink-0" width="2.0em" height="2.0em"><use xlink:href="#geo-icon"/></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">${r.properties.poi.name}</h6><p class="mb-0 opacity-75">${r.properties.address.freeformAddress}</p></div><small class="opacity-50 text-nowrap">${r.properties.dist.toFixed()} m</small></div></a>`;
+
+            var icon = 'map-icon';
+            var name = 'Location';
+            var dist = r.properties.dist < 1 ? 0 : (r.properties.dist / 1000).toFixed(1);
+
+            switch (r.properties.type) {
+                case 'POI':
+                    icon = 'geo-icon';
+                    name = r.properties.poi.name;
+                    break;
+                case 'Street':
+                case 'Point Address':
+                    icon = 'signpost-icon';
+                    name = r.properties.address.streetName;
+                    break;
+                case 'Geography':
+                    icon = 'compass-icon';
+                    name = r.properties.address.country;
+                    break;
+                case 'Address Range':
+                    icon = 'map-icon';
+                    name = 'Address Range';
+                    break;
+                case 'Cross Street':
+                    icon = 'signpost2-icon';
+                    name = r.properties.address.streetName;
+                    break;
+            }
+
+            html += `<a href="#" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true" onclick="itemClicked('${r.id}')">
+                    <svg class="flex-shrink-0" width="2.0em" height="2.0em"><use xlink:href="#${icon}" /></svg>
+                    <div class="d-flex gap-2 w-100 justify-content-between">
+                        <div>
+                            <h6 class="mb-0">${name}</h6>
+                            <p class="mb-0 opacity-75">${r.properties.address.freeformAddress}</p></div>
+                            <small class="opacity-50 text-nowrap">${dist} km</small>
+                        </div>
+                </a>`;
         }
         resultsPanel.innerHTML = html;
-
     });
-}
-
-function itemHovered(id) {
-    //Show a popup when hovering an item in the result list.
-    var shape = datasource.getShapeById(id);
-    showPopupPOI(shape);
 }
 
 function itemClicked(id) {
@@ -307,6 +394,8 @@ function itemClicked(id) {
         center: coordinates,
         zoom: 16
     });
+
+    showPopupPOI(shape);
 }
 
 function addressClicked(id) {
@@ -433,7 +522,7 @@ function showPopupPOI(shape) {
     if (!properties.poi.phone) properties.poi.phone = '';
     if (!properties.poi.url) properties.poi.url = '';
 
-    var html = `<div class="card" style="width:420px;"><div class="card-header"><h5 class="card-title">${properties.poi.name}</h5></div><div class="card-body"><div class="list-group"><a href="#" onclick="addressClicked('${shape.data.id}')" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true"><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#cursor-icon"/></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Address</h6><p class="mb-0 opacity-75">${properties.address.freeformAddress}</p></div></div></a><a target="_blank" href="tel:${properties.poi.phone.replace(/\s/g, '')}" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${properties.poi.phone === '' ? 'visually-hidden' : ''}" aria-current="true"><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#phone-icon"/></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Phone</h6><p class="mb-0 opacity-75">${properties.poi.phone}</p></div></div></a><a target="_blank" href="https://${properties.poi.url.replace(/^https?\:\/\//i, '')}" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${properties.poi.url === '' ? 'visually-hidden' : ''}" aria-current="true"><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#link-icon"/></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Website</h6><p class="mb-0 opacity-75">${properties.poi.url.replace(/^https?\:\/\//i, '')}</p></div></div></a></div></div><div class="card-footer text-muted">${properties.dist.toFixed()} meters away from ${userPositionUpdated === true ? 'you' : 'the Tower of London'}</div></div>`;
+    var html = `<div class="card" style="width:420px;"><div class="card-header"><h5 class="card-title">${properties.poi.name}</h5></div><div class="card-body"><div class="list-group"><a href="#" onclick="addressClicked('${shape.data.id}')" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true"><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#cursor-icon"/></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Address</h6><p class="mb-0 opacity-75">${properties.address.freeformAddress}</p></div></div></a><a target="_blank" href="tel:${properties.poi.phone.replace(/\s/g, '')}" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${properties.poi.phone === '' ? 'visually-hidden' : ''}" aria-current="true"><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#phone-icon"/></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Phone</h6><p class="mb-0 opacity-75">${properties.poi.phone}</p></div></div></a><a target="_blank" href="http://${properties.poi.url.replace(/^https?\:\/\//i, '')}" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${properties.poi.url === '' ? 'visually-hidden' : ''}" aria-current="true"><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#link-icon"/></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Website</h6><p class="mb-0 opacity-75">${properties.poi.url.replace(/^https?\:\/\//i, '')}</p></div></div></a></div></div><div class="card-footer text-muted">${properties.dist.toFixed()} meters away from ${userPositionUpdated === true ? 'you' : 'the Tower of London'}</div></div>`;
 
     popup.setOptions({
         position: shape.getCoordinates(),
