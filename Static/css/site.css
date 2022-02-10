@@ -17,23 +17,3 @@
     overflow-y: auto;
     max-height: calc(100vh - 320px);
 }
-
-.weather-icon {
-    float: left;
-}
-
-.weather-content {
-    float: left;
-    margin: 0 10px;
-}
-
-.weather-temp {
-    font-size: 24px;
-    font-weight: bold;
-}
-
-.weather-phrase {
-    font-size: 16px;
-    font-weight: bold;
-    margin-top: 10px;
-}
