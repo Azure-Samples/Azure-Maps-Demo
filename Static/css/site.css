@@ -17,3 +17,9 @@
     overflow-y: auto;
     max-height: calc(100vh - 320px);
 }
+
+@media only screen and (max-width: 640px) {
+    #search {
+        display:none;
+    }
+}
