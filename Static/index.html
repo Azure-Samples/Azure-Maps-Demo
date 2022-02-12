@@ -9,11 +9,12 @@
 
     <title>Azure Maps Demo</title>
 
-    <link href="/favicon.ico" rel="shortcut icon">
-    <link href="/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas.min.css" rel="stylesheet">
     <link href="https://atlas.microsoft.com/sdk/javascript/drawing/1/atlas-drawing.min.css" rel="stylesheet">
+    <link href="/lib/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="/css/site.min.css" rel="stylesheet">
+
+    <link href="/favicon.ico" rel="shortcut icon">
 
     <script>
         (function (c, l, a, r, i, t, y) {
@@ -68,6 +69,13 @@
         <symbol id="balloon-icon" viewBox="0 0 16 16" fill="black">
             <path fill-rule="evenodd" d="M8 9.984C10.403 9.506 12 7.48 12 5a4 4 0 0 0-8 0c0 2.48 1.597 4.506 4 4.984ZM13 5c0 2.837-1.789 5.227-4.52 5.901l.244.487a.25.25 0 1 1-.448.224l-.008-.017c.008.11.02.202.037.29.054.27.161.488.419 1.003.288.578.235 1.15.076 1.629-.157.469-.422.867-.588 1.115l-.004.007a.25.25 0 1 1-.416-.278c.168-.252.4-.6.533-1.003.133-.396.163-.824-.049-1.246l-.013-.028c-.24-.48-.38-.758-.448-1.102a3.177 3.177 0 0 1-.052-.45l-.04.08a.25.25 0 1 1-.447-.224l.244-.487C4.789 10.227 3 7.837 3 5a5 5 0 0 1 10 0Zm-6.938-.495a2.003 2.003 0 0 1 1.443-1.443C7.773 2.994 8 2.776 8 2.5c0-.276-.226-.504-.498-.459a3.003 3.003 0 0 0-2.46 2.461c-.046.272.182.498.458.498s.494-.227.562-.495Z" />
         </symbol>
+        <symbol id="thermometer-icon" viewBox="0 0 16 16" fill="black">
+            <path d="M5 12.5a1.5 1.5 0 1 1-2-1.415V2.5a.5.5 0 0 1 1 0v8.585A1.5 1.5 0 0 1 5 12.5z" />
+            <path d="M1 2.5a2.5 2.5 0 0 1 5 0v7.55a3.5 3.5 0 1 1-5 0V2.5zM3.5 1A1.5 1.5 0 0 0 2 2.5v7.987l-.167.15a2.5 2.5 0 1 0 3.333 0L5 10.486V2.5A1.5 1.5 0 0 0 3.5 1zm5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5zm4.243 1.757a.5.5 0 0 1 0 .707l-.707.708a.5.5 0 1 1-.708-.708l.708-.707a.5.5 0 0 1 .707 0zM8 5.5a.5.5 0 0 1 .5-.5 3 3 0 1 1 0 6 .5.5 0 0 1 0-1 2 2 0 0 0 0-4 .5.5 0 0 1-.5-.5zM12.5 8a.5.5 0 0 1 .5-.5h1a.5.5 0 1 1 0 1h-1a.5.5 0 0 1-.5-.5zm-1.172 2.828a.5.5 0 0 1 .708 0l.707.708a.5.5 0 0 1-.707.707l-.708-.707a.5.5 0 0 1 0-.708zM8.5 12a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5z" />
+        </symbol>
+        <symbol id="cloud-icon" viewBox="0 0 16 16" fill="black">
+            <path d="M4.158 12.025a.5.5 0 0 1 .316.633l-.5 1.5a.5.5 0 0 1-.948-.316l.5-1.5a.5.5 0 0 1 .632-.317zm6 0a.5.5 0 0 1 .316.633l-.5 1.5a.5.5 0 0 1-.948-.316l.5-1.5a.5.5 0 0 1 .632-.317zm-3.5 1.5a.5.5 0 0 1 .316.633l-.5 1.5a.5.5 0 0 1-.948-.316l.5-1.5a.5.5 0 0 1 .632-.317zm6 0a.5.5 0 0 1 .316.633l-.5 1.5a.5.5 0 1 1-.948-.316l.5-1.5a.5.5 0 0 1 .632-.317zm.747-8.498a5.001 5.001 0 0 0-9.499-1.004A3.5 3.5 0 1 0 3.5 11H13a3 3 0 0 0 .405-5.973zM8.5 2a4 4 0 0 1 3.976 3.555.5.5 0 0 0 .5.445H13a2 2 0 0 1 0 4H3.5a2.5 2.5 0 1 1 .605-4.926.5.5 0 0 0 .596-.329A4.002 4.002 0 0 1 8.5 2z" />
+        </symbol>
     </svg>
 
     <header>
@@ -118,18 +126,26 @@
     <main class="flex-fill" style="margin-top:32px;">
         <div class="container-fluid p-0">
 
-            <noscript>
-                You need to enable JavaScript to run this app.
-            </noscript>
-
-            <div id="demoMap" style="width:100%; height:100%;"></div>
+            <div id="demoMap" class="w-100 h-100">
+                <noscript>You need to enable JavaScript to run this app.</noscript>
+            </div>
 
             <div id="search">
                 <div class="card-body">
-                    <button id="locate-me-button" type="button" class="btn btn-warning float-end">
-                        <svg id="locate-me-icon" width="1.0em" height="1.0em"><use xlink:href="#bullseye-icon" /></svg>
-                        <span id="locate-me-spinner" class="spinner-grow spinner-grow-sm" style="display:none" role="status" aria-hidden="true"></span>
-                    </button>
+                    <div class="btn-group float-end" role="group">
+                        <button id="locate-me-button" type="button" class="btn btn-light">
+                            <svg id="locate-me-icon" width="1.0em" height="1.0em"><use xlink:href="#bullseye-icon" /></svg>
+                            <span id="locate-me-spinner" class="spinner-grow spinner-grow-sm" style="display:none" role="status" aria-hidden="true"></span>
+                        </button>
+                        <button id="radar-button" type="button" class="btn btn-light">
+                            <svg id="radar-icon" width="1.0em" height="1.0em"><use xlink:href="#cloud-icon" /></svg>
+                            <span id="radar-spinner" class="spinner-grow spinner-grow-sm" style="display:none" role="status" aria-hidden="true"></span>
+                        </button>
+                        <button id="infrared-button" type="button" class="btn btn-light">
+                            <svg id="infrared-icon" width="1.0em" height="1.0em"><use xlink:href="#thermometer-icon" /></svg>
+                            <span id="infrared-spinner" class="spinner-grow spinner-grow-sm" style="display:none" role="status" aria-hidden="true"></span>
+                        </button>
+                    </div>
                     <label for="search-input" class="form-label">Search for point of interest</label>
                     <div class="input-group mb-3">
                         <span class="input-group-text">
@@ -138,9 +154,7 @@
                         <input id="search-input" type="search" class="form-control" placeholder="restaurants">
                     </div>
                 </div>
-
                 <div id="results-panel" class="list-group"></div>
-
             </div>
 
         </div>
@@ -153,10 +167,11 @@
         </div>
     </footer>
 
-    <script src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://atlas.microsoft.com/sdk/javascript/mapcontrol/2/atlas.min.js"></script>
     <script src="https://atlas.microsoft.com/sdk/javascript/drawing/1/atlas-drawing.min.js"></script>
     <script src="https://atlas.microsoft.com/sdk/javascript/service/2/atlas-service.min.js"></script>
+    <script src="/lib/azuremaps/azure-maps-animations.min.js"></script>
+    <script src="/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js/site.min.js"></script>
 
 </body>
