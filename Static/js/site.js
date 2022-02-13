@@ -1,4 +1,6 @@
-﻿var map, layer, timer, datasource, popup, searchInput, locateMeButton, resultsPanel, searchInputLength, centerMapOnResults, routeURL, searchURL;
+﻿var map, datasource, popup, weatherLayer, centerMapOnResults;
+var searchInput, locateMeButton, resultsPanel, searchInputLength;
+var routeURL, searchURL;
 
 // Default location: Tower of London
 var userPosition = [-0.076083, 51.508120]
@@ -6,25 +8,8 @@ var userPositionUpdated = false;
 
 // Azure Weather Services
 var weatherUrl = 'https://{azMapsDomain}/weather/currentConditions/json?api-version=1.1&query={query}';
-var weatherTileUrl = 'https://{azMapsDomain}/map/tile?api-version=2.1&tilesetId={tilesetId}&zoom={z}&x={x}&y={y}&timeStamp={timestamp}&tileSize=256&view=Auto';
+var weatherTileUrl = 'https://{azMapsDomain}/map/tile?api-version=2.1&tilesetId={tilesetId}&zoom={z}&x={x}&y={y}&tileSize=256&view=Auto';
 var airQualityUrl = 'https://{azMapsDomain}/weather/airQuality/current/json?api-version=1.1&query={query}';
-
-//Details on the availability of the different weather layers.
-var weatherLayers = {
-    'microsoft.weather.infrared.main': {
-        interval: 10 * 60 * 1000, //10 minute interval
-        past: 3 * 60 * 60 * 1000, //Data available up to 3 hours in the past.
-        future: 0 //Forecast data not avaiable.
-    },
-    'microsoft.weather.radar.main': {
-        interval: 5 * 60 * 1000, //5 minute interval
-        past: 1.5 * 60 * 60 * 1000, //Data available up to 1.5 hours in the past.
-        future: 1.5 * 60 * 60 * 1000 //Data available up to 1.5 hours in the future.
-    }
-};
-
-// Weather time messages
-var displayMessages = [];
 
 function GetMap() {
     //Initialize a map instance.
@@ -217,10 +202,10 @@ function locateMe(e) {
     clearSerach();
     searchInput.value = '';
 
-    // stop weather animation
-    if (layer) {
-        layer.stop();
-        clearInterval(timer);
+    // remove weather layer
+    if (weatherLayer) {
+        map.layers.remove(weatherLayer);
+        weatherLayer = null;
     }
 
     locateMeButton.disabled = true;
@@ -565,118 +550,30 @@ async function showPopupPOI(shape) {
 }
 
 function loadWeatherLayer(tilesetId) {
-    //If there is already a layer, stop it animating.
-    if (layer) {
-        layer.stop();
-        clearInterval(timer);
-    }
 
-    //Get the current time.
-    var now = new Date().getTime();
-
-    //Get the details for the requested weather layer.
-    var layerInfo = weatherLayers[tilesetId];
-
-    //Calculate the number of timestamps.
-    var numTimestamps = (layerInfo.past + layerInfo.future) / layerInfo.interval;
-
-    var tlOptions = [];
-
-    for (var i = 0; i < numTimestamps; i++) {
-        //Calculate time period for an animation frame. Shift the interval by one as the olds tile will expire almost immediately.
-        var time = (now - layerInfo.past) + (i + 1) * layerInfo.interval;
-
-        //Create a tile layer option for each timestamp.
-        tlOptions.push(createTileLayer(tilesetId, time));
-
-        //Optionally, create a message to display for each frame of the animation based on the time stamp.
-        if (time === now) {
-            displayMessages.push('Current');
-        } else {
-            var dt = (time - now) / 1000 / 60;
-            displayMessages.push(`${dt} minutes`);
-        }
-    }
-
-    if (layer) {
-        layer.setOptions({
-            tileLayerOptions: tlOptions
-        });
-        layer.play();
-    } else {
-
+    if (!weatherLayer) {
         map.setStyle({
             style: 'grayscale_dark'
         });
 
         map.setCamera({
-            center: userPosition,
             zoom: 6,
             pitch: 0,
             bearing: 0
         });
 
-        //Create the animation manager.
-        layer = new atlas.layer.AnimatedTileLayer({
-            tileLayerOptions: tlOptions,
-            duration: numTimestamps * 800, //Allow one second for each frame (tile layer) in the animation.
-            autoPlay: true,
-            loop: true
+        //Create a tile layer and add it to the map below the label layer.
+        weatherLayer = new atlas.layer.TileLayer({
+            tileUrl: weatherTileUrl.replace('{tilesetId}', tilesetId),
+            opacity: 0.9,
+            tileSize: 256
         });
 
-        //Add an event to the underlying frame animation to update the message panel when the frame changes.
-        map.events.add('onframe', layer.getPlayableAnimation(), function (e) {
-            if (e.frameIdx >= 0) {
-                var msg = displayMessages[e.frameIdx];
-                //document.getElementById('messagePanel').innerText = msg;
-            }
+        map.layers.add(weatherLayer, 'labels');
+    } else {
+        weatherLayer.setOptions({
+            tileUrl: weatherTileUrl.replace('{tilesetId}', tilesetId)
         });
-
-        //Add the layer to the map.
-        map.layers.add(layer, 'labels');
-
-        //Setup an interval timer to shift the layers (remove oldest, add newest) based on the update interval of the tile layer.
-        timer = setInterval(intervalHandler(tilesetId), layerInfo.interval);
-    }
-}
-
-function createTileLayer(tilesetId, time) {
-    //Create an ISO 8601 timestamp string.
-    //JavaScripts format for ISO string includes decimal seconds and the letter "Z" at the end that is not supported. Use slice to remove this.
-    var timestamp = new Date(time).toISOString().slice(0, 19);
-
-    //Create a tile layer option for each timestamp.
-    return {
-        tileUrl: weatherTileUrl.replace('{tilesetId}', tilesetId).replace('{timestamp}', timestamp),
-        tileSize: 256,      //Weather tiles only available in 256 pixel size.
-        opacity: 0.9,
-        maxSourceZoom: 15   //Weather tiles only available to zoom level 15. If you zoom in closer, the map may pull tiles from level 15 to fill the map.
-    };
-}
-
-function intervalHandler(tilesetId) {
-    return function () {
-        //Get the details for the requested weather layer.
-        var layerInfo = weatherLayers[tilesetId];
-
-        //Calculate time period for an animation frame. Shift the interval by one as the olds tile will expire almost immediately.
-        var time = (now - layerInfo.past) + (i + 1) * layerInfo.interval;
-
-        //Create an ISO 8601 timestamp string.
-        //JavaScripts format for ISO string includes decimal seconds and the letter "Z" at the end that is not supported. Use slice to remove this.
-        var timestamp = new Date(time).toISOString().slice(0, 19);
-
-        //Get the current tile layer options from the animation layer.
-        var layers = layer.getOptions().tileLayerOptions;
-
-        //Remove the oldest tile layer options.
-        tlOptions.shift();
-
-        //Add the newest tile layer options.
-        tlOptions.push(createTileLayer(tilesetId, time));
-
-        //Update the animation layer.
-        layer.setOptions({ tileLayerOptions: tlOptions });
     }
 }
 
