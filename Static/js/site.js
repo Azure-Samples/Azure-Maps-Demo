@@ -1,6 +1,7 @@
-﻿var map, datasource, popup, weatherLayer, centerMapOnResults;
-var searchInput, locateMeButton, resultsPanel, searchInputLength;
+﻿var map, datasource, popup, radarLayer, infraredLayer, contourNumbersLayer, contourLayer, centerMapOnResults;
+var searchInput, locateMeButton, resultsPanel, searchInputLength, radarButton, infraredButton, contoursButton;
 var routeURL, searchURL;
+var layerStyle = 'road';
 
 // Default location: Tower of London
 var userPosition = [-0.076083, 51.508120]
@@ -8,7 +9,7 @@ var userPositionUpdated = false;
 
 // Azure Weather Services
 var weatherUrl = 'https://{azMapsDomain}/weather/currentConditions/json?api-version=1.1&query={query}';
-var weatherTileUrl = 'https://{azMapsDomain}/map/tile?api-version=2.1&tilesetId={tilesetId}&zoom={z}&x={x}&y={y}&tileSize=256&view=Auto';
+var tileUrl = 'https://{azMapsDomain}/map/tile?api-version=2.1&tilesetId={tilesetId}&zoom={z}&x={x}&y={y}&view=Auto';
 var airQualityUrl = 'https://{azMapsDomain}/weather/airQuality/current/json?api-version=1.1&query={query}';
 
 function GetMap() {
@@ -54,14 +55,19 @@ function GetMap() {
     locateMeButton = document.getElementById("locate-me-button");
     locateMeButton.addEventListener("click", locateMe);
 
-    var radarButton = document.getElementById("radar-button");
+    radarButton = document.getElementById("radar-button");
     radarButton.addEventListener("click", function () {
-        loadWeatherLayer('microsoft.weather.radar.main');
+        loadRadarLayer();
     });
 
-    var infraredButton = document.getElementById("infrared-button");
+    infraredButton = document.getElementById("infrared-button");
     infraredButton.addEventListener("click", function () {
-        loadWeatherLayer('microsoft.weather.infrared.main');
+        loadInfraredLayer();
+    });
+
+    contoursButton = document.getElementById("contours-button");
+    contoursButton.addEventListener("click", function () {
+        loadContoursLayer();
     });
 
     //Create a popup which we can reuse for each result.
@@ -202,13 +208,8 @@ function locateMe(e) {
     clearSerach();
     searchInput.value = '';
 
-    // remove weather layer
-    if (weatherLayer) {
-        map.layers.remove(weatherLayer);
-        weatherLayer = null;
-    }
-
     locateMeButton.disabled = true;
+    locateMeButton.className = 'btn btn-warning';
     locateMeIcon.style.display = 'none';
     locateMeSpinner.style.display = 'block';
 
@@ -237,6 +238,7 @@ function locateMe(e) {
         userPositionUpdated = true;
 
         locateMeButton.disabled = false;
+        locateMeButton.className = 'btn btn-light';
         locateMeIcon.style.display = 'block';
         locateMeSpinner.style.display = 'none';
 
@@ -245,6 +247,7 @@ function locateMe(e) {
         alert('Sorry, your position information is unavailable!');
 
         locateMeButton.disabled = false;
+        locateMeButton.className = 'btn btn-light';
         locateMeIcon.style.display = 'block';
         locateMeSpinner.style.display = 'none';
     });
@@ -549,9 +552,13 @@ async function showPopupPOI(shape) {
     popup.open(map);
 }
 
-function loadWeatherLayer(tilesetId) {
+function loadRadarLayer() {
 
-    if (!weatherLayer) {
+    if (!radarLayer) {
+        radarButton.className = 'btn btn-warning';
+
+        layerStyle = map.getStyle().style;
+
         map.setStyle({
             style: 'grayscale_dark'
         });
@@ -563,16 +570,118 @@ function loadWeatherLayer(tilesetId) {
         });
 
         //Create a tile layer and add it to the map below the label layer.
-        weatherLayer = new atlas.layer.TileLayer({
-            tileUrl: weatherTileUrl.replace('{tilesetId}', tilesetId),
+        radarLayer = new atlas.layer.TileLayer({
+            tileUrl: tileUrl.replace('{tilesetId}', 'microsoft.weather.radar.main') + '&tileSize=256',
             opacity: 0.8,
             tileSize: 256
         });
 
-        map.layers.add(weatherLayer, 'labels');
+        map.layers.add(radarLayer, 'labels');
     } else {
-        weatherLayer.setOptions({
-            tileUrl: weatherTileUrl.replace('{tilesetId}', tilesetId)
+        radarButton.className = 'btn btn-light';
+
+        map.layers.remove(radarLayer);
+        radarLayer = null;
+
+        map.setStyle({
+            style: layerStyle
+        });
+    }
+}
+
+function loadInfraredLayer() {
+
+    if (!infraredLayer) {
+        infraredButton.className = 'btn btn-warning';
+
+        layerStyle = map.getStyle().style;
+
+        map.setStyle({
+            style: 'grayscale_dark'
+        });
+
+        map.setCamera({
+            zoom: 6,
+            pitch: 0,
+            bearing: 0
+        });
+
+        //Create a tile layer and add it to the map below the label layer.
+        infraredLayer = new atlas.layer.TileLayer({
+            tileUrl: tileUrl.replace('{tilesetId}', 'microsoft.weather.infrared.main') + '&tileSize=256',
+            opacity: 0.8,
+            tileSize: 256
+        });
+
+        map.layers.add(infraredLayer, 'labels');
+    } else {
+        infraredButton.className = 'btn btn-light';
+
+        map.layers.remove(infraredLayer);
+        infraredLayer = null;
+
+        map.setStyle({
+            style: layerStyle
+        });
+    }
+}
+
+function loadContoursLayer() {
+
+    if (!contourLayer) {
+
+        contoursButton.className = 'btn btn-warning';
+
+        layerStyle = map.getStyle().style;
+
+        map.setStyle({
+            style: 'grayscale_dark'
+        });
+
+        map.setCamera({
+            zoom: 13,
+            pitch: 0,
+            bearing: 0
+        });
+
+        var contourDS = new atlas.source.VectorTileSource(null, {
+            tiles: ['https://{azMapsDomain}/map/tile?api-version=2.0&tilesetId=microsoft.dem.contours&zoom={z}&x={x}&y={y}&tileSize=512&view=Auto'],
+            minZoom: 9,
+            maxZoom: 14
+        });
+        map.sources.add(contourDS);
+
+        contourLayer = new atlas.layer.LineLayer(contourDS, null, {
+            sourceLayer: 'Elevation Contour Lines',
+            strokeColor: 'yellow',
+            strokeWidth: 2
+        });
+
+        contourNumbersLayer = new atlas.layer.SymbolLayer(contourDS, null, {
+            sourceLayer: 'Elevation Contour Lines',
+            lineSpacing: 100,
+            placement: 'line',
+            iconOptions: {
+                image: 'none'
+            },
+            textOptions: {
+                haloColor: 'white',
+                haloWidth: 1.4,
+                size: 15,
+                textField: ['get', 'elevationMeters']
+            }
+        });
+
+        map.layers.add([contourLayer, contourNumbersLayer], 'labels');
+
+    } else {
+        contoursButton.className = 'btn btn-light';
+
+        map.layers.remove([contourLayer, contourNumbersLayer]);
+        contourNumbersLayer, contourLayer = null;
+
+        map.setStyle({
+            style: layerStyle
         });
     }
 }
