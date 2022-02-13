@@ -565,7 +565,7 @@ function loadWeatherLayer(tilesetId) {
         //Create a tile layer and add it to the map below the label layer.
         weatherLayer = new atlas.layer.TileLayer({
             tileUrl: weatherTileUrl.replace('{tilesetId}', tilesetId),
-            opacity: 0.9,
+            opacity: 0.8,
             tileSize: 256
         });
 
