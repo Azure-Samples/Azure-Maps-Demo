@@ -9,7 +9,7 @@ var userPositionUpdated = false;
 
 // Azure Weather Services
 var weatherUrl = 'https://{azMapsDomain}/weather/currentConditions/json?api-version=1.1&query={query}';
-var tileUrl = 'https://{azMapsDomain}/map/tile?api-version=2.1&tilesetId={tilesetId}&zoom={z}&x={x}&y={y}&view=Auto';
+var tileUrl = 'https://{azMapsDomain}/map/tile?api-version=2.1&tilesetId={tilesetId}&zoom={z}&x={x}&y={y}&tileSize={tileSize}&view=Auto';
 var airQualityUrl = 'https://{azMapsDomain}/weather/airQuality/current/json?api-version=1.1&query={query}';
 
 function GetMap() {
@@ -51,24 +51,18 @@ function GetMap() {
         }
     });
 
-    //Add click event to the locate me button.
+    //Add click events
     locateMeButton = document.getElementById("locate-me-button");
     locateMeButton.addEventListener("click", locateMe);
 
     radarButton = document.getElementById("radar-button");
-    radarButton.addEventListener("click", function () {
-        loadRadarLayer();
-    });
+    radarButton.addEventListener("click", loadRadarLayer);
 
     infraredButton = document.getElementById("infrared-button");
-    infraredButton.addEventListener("click", function () {
-        loadInfraredLayer();
-    });
+    infraredButton.addEventListener("click", loadInfraredLayer);
 
     contoursButton = document.getElementById("contours-button");
-    contoursButton.addEventListener("click", function () {
-        loadContoursLayer();
-    });
+    contoursButton.addEventListener("click", loadContoursLayer);
 
     //Create a popup which we can reuse for each result.
     popup = new atlas.Popup();
@@ -90,20 +84,11 @@ function GetMap() {
         map.sources.add(datasource);
 
         // Icons from https://icons.getbootstrap.com/
-        var geoIcon = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#517CED" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 1a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4a4 4 0 1 1 4.5 3.969V13.5a.5.5 0 0 1-1 0V7.97A4 4 0 0 1 4 3.999zm2.493 8.574a.5.5 0 0 1-.411.575c-.712.118-1.28.295-1.655.493a1.319 1.319 0 0 0-.37.265.301.301 0 0 0-.057.09V14l.002.008a.147.147 0 0 0 .016.033.617.617 0 0 0 .145.15c.165.13.435.27.813.395.751.25 1.82.414 3.024.414s2.273-.163 3.024-.414c.378-.126.648-.265.813-.395a.619.619 0 0 0 .146-.15.148.148 0 0 0 .015-.033L12 14v-.004a.301.301 0 0 0-.057-.09 1.318 1.318 0 0 0-.37-.264c-.376-.198-.943-.375-1.655-.493a.5.5 0 1 1 .164-.986c.77.127 1.452.328 1.957.594C12.5 13 13 13.4 13 14c0 .426-.26.752-.544.977-.29.228-.68.413-1.116.558-.878.293-2.059.465-3.34.465-1.281 0-2.462-.172-3.34-.465-.436-.145-.826-.33-1.116-.558C3.26 14.752 3 14.426 3 14c0-.599.5-1 .961-1.243.505-.266 1.187-.467 1.957-.594a.5.5 0 0 1 .575.411z" /></svg>');
-        map.imageSprite.add('geo-icon', geoIcon);
-
-        var signpostIcon = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#04257C" viewBox="0 0 16 16"><path d="M7 1.414V4H2a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h5v6h2v-6h3.532a1 1 0 0 0 .768-.36l1.933-2.32a.5.5 0 0 0 0-.64L13.3 4.36a1 1 0 0 0-.768-.36H9V1.414a1 1 0 0 0-2 0zM12.532 5l1.666 2-1.666 2H2V5h10.532z" /></svg>');
-        map.imageSprite.add('signpost-icon', signpostIcon);
-
-        var signpost2Icon = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#862A6F" viewBox="0 0 16 16"><path d="M7 7V1.414a1 1 0 0 1 2 0V2h5a1 1 0 0 1 .8.4l.975 1.3a.5.5 0 0 1 0 .6L14.8 5.6a1 1 0 0 1-.8.4H9v10H7v-5H2a1 1 0 0 1-.8-.4L.225 9.3a.5.5 0 0 1 0-.6L1.2 7.4A1 1 0 0 1 2 7h5zm1 3V8H2l-.75 1L2 10h6zm0-5h6l.75-1L14 3H8v2z" /></svg>');
-        map.imageSprite.add('signpost2-icon', signpost2Icon);
-
-        var mapIcon = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#424F85" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M15.817.113A.5.5 0 0 1 16 .5v14a.5.5 0 0 1-.402.49l-5 1a.502.502 0 0 1-.196 0L5.5 15.01l-4.902.98A.5.5 0 0 1 0 15.5v-14a.5.5 0 0 1 .402-.49l5-1a.5.5 0 0 1 .196 0L10.5.99l4.902-.98a.5.5 0 0 1 .415.103zM10 1.91l-4-.8v12.98l4 .8V1.91zm1 12.98 4-.8V1.11l-4 .8v12.98zm-6-.8V1.11l-4 .8v12.98l4-.8z" /></svg>');
-        map.imageSprite.add('map-icon', mapIcon);
-
-        var compassIcon = 'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="#C85EAE" viewBox="0 0 16 16"><path d="M8 16.016a7.5 7.5 0 0 0 1.962-14.74A1 1 0 0 0 9 0H7a1 1 0 0 0-.962 1.276A7.5 7.5 0 0 0 8 16.016zm6.5-7.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z" /><path d="m6.94 7.44 4.95-2.83-2.83 4.95-4.949 2.83 2.828-4.95z" /></svg>');
-        map.imageSprite.add('compass-icon', compassIcon);
+        map.imageSprite.add('geo-icon', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgZmlsbD0iIzUxN0NFRCIgdmlld0JveD0iMCAwIDE2IDE2Ij48cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik04IDFhMyAzIDAgMSAwIDAgNiAzIDMgMCAwIDAgMC02ek00IDRhNCA0IDAgMSAxIDQuNSAzLjk2OVYxMy41YS41LjUgMCAwIDEtMSAwVjcuOTdBNCA0IDAgMCAxIDQgMy45OTl6bTIuNDkzIDguNTc0YS41LjUgMCAwIDEtLjQxMS41NzVjLS43MTIuMTE4LTEuMjguMjk1LTEuNjU1LjQ5M2ExLjMxOSAxLjMxOSAwIDAgMC0uMzcuMjY1LjMwMS4zMDEgMCAwIDAtLjA1Ny4wOVYxNGwuMDAyLjAwOGEuMTQ3LjE0NyAwIDAgMCAuMDE2LjAzMy42MTcuNjE3IDAgMCAwIC4xNDUuMTVjLjE2NS4xMy40MzUuMjcuODEzLjM5NS43NTEuMjUgMS44Mi40MTQgMy4wMjQuNDE0czIuMjczLS4xNjMgMy4wMjQtLjQxNGMuMzc4LS4xMjYuNjQ4LS4yNjUuODEzLS4zOTVhLjYxOS42MTkgMCAwIDAgLjE0Ni0uMTUuMTQ4LjE0OCAwIDAgMCAuMDE1LS4wMzNMMTIgMTR2LS4wMDRhLjMwMS4zMDEgMCAwIDAtLjA1Ny0uMDkgMS4zMTggMS4zMTggMCAwIDAtLjM3LS4yNjRjLS4zNzYtLjE5OC0uOTQzLS4zNzUtMS42NTUtLjQ5M2EuNS41IDAgMSAxIC4xNjQtLjk4NmMuNzcuMTI3IDEuNDUyLjMyOCAxLjk1Ny41OTRDMTIuNSAxMyAxMyAxMy40IDEzIDE0YzAgLjQyNi0uMjYuNzUyLS41NDQuOTc3LS4yOS4yMjgtLjY4LjQxMy0xLjExNi41NTgtLjg3OC4yOTMtMi4wNTkuNDY1LTMuMzQuNDY1LTEuMjgxIDAtMi40NjItLjE3Mi0zLjM0LS40NjUtLjQzNi0uMTQ1LS44MjYtLjMzLTEuMTE2LS41NThDMy4yNiAxNC43NTIgMyAxNC40MjYgMyAxNGMwLS41OTkuNS0xIC45NjEtMS4yNDMuNTA1LS4yNjYgMS4xODctLjQ2NyAxLjk1Ny0uNTk0YS41LjUgMCAwIDEgLjU3NS40MTF6IiAvPjwvc3ZnPg==');
+        map.imageSprite.add('signpost-icon', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgZmlsbD0iIzA0MjU3QyIgdmlld0JveD0iMCAwIDE2IDE2Ij48cGF0aCBkPSJNNyAxLjQxNFY0SDJhMSAxIDAgMCAwLTEgMXY0YTEgMSAwIDAgMCAxIDFoNXY2aDJ2LTZoMy41MzJhMSAxIDAgMCAwIC43NjgtLjM2bDEuOTMzLTIuMzJhLjUuNSAwIDAgMCAwLS42NEwxMy4zIDQuMzZhMSAxIDAgMCAwLS43NjgtLjM2SDlWMS40MTRhMSAxIDAgMCAwLTIgMHpNMTIuNTMyIDVsMS42NjYgMi0xLjY2NiAySDJWNWgxMC41MzJ6IiAvPjwvc3ZnPg==');
+        map.imageSprite.add('signpost2-icon', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgZmlsbD0iIzg2MkE2RiIgdmlld0JveD0iMCAwIDE2IDE2Ij48cGF0aCBkPSJNNyA3VjEuNDE0YTEgMSAwIDAgMSAyIDBWMmg1YTEgMSAwIDAgMSAuOC40bC45NzUgMS4zYS41LjUgMCAwIDEgMCAuNkwxNC44IDUuNmExIDEgMCAwIDEtLjguNEg5djEwSDd2LTVIMmExIDEgMCAwIDEtLjgtLjRMLjIyNSA5LjNhLjUuNSAwIDAgMSAwLS42TDEuMiA3LjRBMSAxIDAgMCAxIDIgN2g1em0xIDNWOEgybC0uNzUgMUwyIDEwaDZ6bTAtNWg2bC43NS0xTDE0IDNIOHYyeiIgLz48L3N2Zz4=');
+        map.imageSprite.add('map-icon', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgZmlsbD0iIzQyNEY4NSIgdmlld0JveD0iMCAwIDE2IDE2Ij48cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xNS44MTcuMTEzQS41LjUgMCAwIDEgMTYgLjV2MTRhLjUuNSAwIDAgMS0uNDAyLjQ5bC01IDFhLjUwMi41MDIgMCAwIDEtLjE5NiAwTDUuNSAxNS4wMWwtNC45MDIuOThBLjUuNSAwIDAgMSAwIDE1LjV2LTE0YS41LjUgMCAwIDEgLjQwMi0uNDlsNS0xYS41LjUgMCAwIDEgLjE5NiAwTDEwLjUuOTlsNC45MDItLjk4YS41LjUgMCAwIDEgLjQxNS4xMDN6TTEwIDEuOTFsLTQtLjh2MTIuOThsNCAuOFYxLjkxem0xIDEyLjk4IDQtLjhWMS4xMWwtNCAuOHYxMi45OHptLTYtLjhWMS4xMWwtNCAuOHYxMi45OGw0LS44eiIgLz48L3N2Zz4=');
+        map.imageSprite.add('compass-icon', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgZmlsbD0iI0M4NUVBRSIgdmlld0JveD0iMCAwIDE2IDE2Ij48cGF0aCBkPSJNOCAxNi4wMTZhNy41IDcuNSAwIDAgMCAxLjk2Mi0xNC43NEExIDEgMCAwIDAgOSAwSDdhMSAxIDAgMCAwLS45NjIgMS4yNzZBNy41IDcuNSAwIDAgMCA4IDE2LjAxNnptNi41LTcuNWE2LjUgNi41IDAgMSAxLTEzIDAgNi41IDYuNSAwIDAgMSAxMyAweiIgLz48cGF0aCBkPSJtNi45NCA3LjQ0IDQuOTUtMi44My0yLjgzIDQuOTUtNC45NDkgMi44MyAyLjgyOC00Ljk1eiIgLz48L3N2Zz4=');
 
         //Add layers for rendering the search results.
         var searchLayer = new atlas.layer.SymbolLayer(datasource, null, {
@@ -166,13 +151,17 @@ function GetMap() {
         });
 
         //Map Controls
-        map.controls.add(new atlas.control.StyleControl({
-            mapStyles: ['road', 'road_shaded_relief', 'grayscale_light', 'night', 'grayscale_dark', 'satellite', 'satellite_road_labels', 'high_contrast_dark']
-        }), {
-            position: 'top-right'
-        });
-
-        map.controls.add(new atlas.control.TrafficControl(), {
+        map.controls.add([
+            new atlas.control.StyleControl({
+                autoSelectionMode: true,
+                mapStyles: ['road', 'road_shaded_relief', 'grayscale_light', 'night', 'grayscale_dark', 'satellite', 'satellite_road_labels', 'high_contrast_dark']
+            }),
+            new atlas.control.TrafficControl(),
+            new atlas.control.ZoomControl(),
+            new atlas.control.PitchControl(),
+            new atlas.control.CompassControl(),
+            
+        ], {
             position: 'top-right'
         });
 
@@ -180,17 +169,6 @@ function GetMap() {
             position: 'bottom-left'
         });
 
-        map.controls.add(new atlas.control.ZoomControl(), {
-            position: 'top-right'
-        });
-
-        map.controls.add(new atlas.control.PitchControl(), {
-            position: 'top-right'
-        });
-
-        map.controls.add(new atlas.control.CompassControl(), {
-            position: 'top-right'
-        });
     });
 }
 
@@ -327,15 +305,7 @@ function search() {
             r.properties.icon = icon;
             r.properties.layer = 'searchLayer';
 
-            html += `<a href="#" class="list-group-item list-group-item-action d-flex gap-3 py-3"  onclick="itemClicked('${r.id}')" onmouseover="itemHovered('${r.id}')">
-                    <svg class="flex-shrink-0" width="2.0em" height="2.0em"><use xlink:href="#${icon}" /></svg>
-                    <div class="d-flex gap-2 w-100 justify-content-between">
-                        <div>
-                            <h6 class="mb-0">${name}</h6>
-                            <p class="mb-0 opacity-75">${r.properties.address.freeformAddress}</p></div>
-                            <small class="opacity-50 text-nowrap">${dist} km</small>
-                        </div>
-                </a>`;
+            html += `<a href="#" class="list-group-item list-group-item-action d-flex gap-3 py-3" onclick="itemClicked('${r.id}')" onmouseover="itemHovered('${r.id}')"><svg class="flex-shrink-0" width="2.0em" height="2.0em"><use xlink:href="#${icon}" /></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">${name}</h6><p class="mb-0 opacity-75">${r.properties.address.freeformAddress}</p></div><small class="opacity-50 text-nowrap">${dist} km</small></div></a>`;
         }
         resultsPanel.innerHTML = html;
 
@@ -471,78 +441,7 @@ async function showPopupPOI(shape) {
         return null;
     });
 
-    var html = `<div class="card" style="width:420px;">
-                <div class="card-header">
-                    <h5 class="card-title">${name}</h5>
-                </div>
-                <div class="card-body">
-                    <div class="list-group">
-                        <a href="#" onclick="addressClicked('${shape.data.id}')" class="list-group-item list-group-item-action d-flex gap-3 py-3" >
-                            <svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#cursor-icon" /></svg>
-                            <div class="d-flex gap-2 w-100 justify-content-between">
-                                <div>
-                                    <h6 class="mb-0">Address</h6>
-                                    <p class="mb-0 opacity-75 text-wrap">${properties.address.freeformAddress}</p>
-                                </div>
-                            </div>
-                            <small class="opacity-50 text-nowrap">Directions</small>
-                        </a>
-                        <a href="#" onclick="truckClicked('${shape.data.id}')" class="list-group-item list-group-item-action d-flex gap-3 py-3" >
-                            <svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#truck-icon" /></svg>
-                            <div class="d-flex gap-2 w-100 justify-content-between">
-                                <div>
-                                    <h6 class="mb-0">Truck Route</h6>
-                                    <p class="mb-0 opacity-75 text-wrap">Route that is optimized for commercial vehicles, like for trucks.</p>
-                                </div>
-                            </div>
-                            <small class="opacity-50 text-nowrap">Directions</small>
-                        </a>
-                        <a target="_blank" href="tel:${phone.replace(/\s/g, '')}" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${phone === '' ? 'visually-hidden' : ''}" >
-                            <svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#phone-icon" /></svg>
-                            <div class="d-flex gap-2 w-100 justify-content-between">
-                                <div>
-                                    <h6 class="mb-0">Phone</h6>
-                                    <p class="mb-0 opacity-75">${phone}</p>
-                                </div>
-                                <small class="opacity-50 text-nowrap">POI</small>
-                            </div>
-                        </a>
-                        <a target="_blank" href="http://${url.replace(/^https?\:\/\//i, '')}" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${url === '' ? 'visually-hidden' : ''}" >
-                            <svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#link-icon" /></svg>
-                            <div class="d-flex gap-2 w-100 justify-content-between">
-                                <div>
-                                    <h6 class="mb-0">Website</h6>
-                                    <p class="mb-0 opacity-75">${url.replace(/^https?\:\/\//i, '')}</p>
-                                </div>
-                                <small class="opacity-50 text-nowrap">POI</small>
-                            </div>
-                        </a>
-                        <a target="_blank" href="https://docs.microsoft.com/rest/api/maps/weather/get-current-conditions" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${!weather ? 'visually-hidden' : ''}" >
-                            <img width="32" height="32" class="flex-shrink-0" src="/images/icons/weather-black/${weather.iconCode}.png"/>
-                            <div class="d-flex gap-2 w-100 justify-content-between">
-                                <div>
-                                    <h6 class="mb-0">${weather.phrase}</h6>
-                                    <p class="mb-0 opacity-75 text-wrap">Temperature ${weather.temperature.value}&#176;${weather.temperature.unit} and feels like ${weather.realFeelTemperature.value}&#176;${weather.realFeelTemperature.unit}</p>
-                                </div>
-                                <small class="opacity-50 text-nowrap">Weather</small>
-                            </div>
-                        </a>
-                        <a target="_blank" href="https://docs.microsoft.com//rest/api/maps/weather/get-current-air-quality" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${!airQuality ? 'visually-hidden' : ''}" >
-                            <svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#balloon-icon" /></svg>
-                            <div class="d-flex gap-2 w-100 justify-content-between">
-                                <div>
-                                    <h6 class="mb-0">${airQuality.category}</h6>
-                                    <p class="mb-0 opacity-75 text-wrap">${airQuality.description}</p>
-                                </div>
-                                <small class="opacity-50 text-nowrap">Air Quality</small>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                <div class="card-footer text-muted">
-                    ${dist} km away from ${userPositionUpdated === true ? 'you' : 'the Tower of London'}
-                </div>
-            </div>`;
+    var html = `<div class="card" style="width:420px;"><div class="card-header"><h5 class="card-title">${name}</h5></div><div class="card-body"><div class="list-group"><a href="#" onclick="addressClicked('${shape.data.id}')" class="list-group-item list-group-item-action d-flex gap-3 py-3" ><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#cursor-icon" /></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Address</h6><p class="mb-0 opacity-75 text-wrap">${properties.address.freeformAddress}</p></div></div><small class="opacity-50 text-nowrap">Directions</small></a><a href="#" onclick="truckClicked('${shape.data.id}')" class="list-group-item list-group-item-action d-flex gap-3 py-3" ><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#truck-icon" /></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Truck Route</h6><p class="mb-0 opacity-75 text-wrap">Route that is optimized for commercial vehicles, like for trucks.</p></div></div><small class="opacity-50 text-nowrap">Directions</small></a><a target="_blank" href="tel:${phone.replace(/\s/g, '')}" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${phone === '' ? 'visually-hidden' : ''}" ><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#phone-icon" /></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Phone</h6><p class="mb-0 opacity-75">${phone}</p></div><small class="opacity-50 text-nowrap">POI</small></div></a><a target="_blank" href="http://${url.replace(/^https?\:\/\//i, '')}" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${url === '' ? 'visually-hidden' : ''}" ><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#link-icon" /></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Website</h6><p class="mb-0 opacity-75">${url.replace(/^https?\:\/\//i, '')}</p></div><small class="opacity-50 text-nowrap">POI</small></div></a><a target="_blank" href="https://docs.microsoft.com/rest/api/maps/weather/get-current-conditions" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${!weather ? 'visually-hidden' : ''}" ><img width="32" height="32" class="flex-shrink-0" src="/images/icons/weather-black/${weather.iconCode}.png"/><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">${weather.phrase}</h6><p class="mb-0 opacity-75 text-wrap">Temperature ${weather.temperature.value}&#176;${weather.temperature.unit} and feels like ${weather.realFeelTemperature.value}&#176;${weather.realFeelTemperature.unit}</p></div><small class="opacity-50 text-nowrap">Weather</small></div></a><a target="_blank" href="https://docs.microsoft.com//rest/api/maps/weather/get-current-air-quality" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${!airQuality ? 'visually-hidden' : ''}" ><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#balloon-icon" /></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">${airQuality.category}</h6><p class="mb-0 opacity-75 text-wrap">${airQuality.description}</p></div><small class="opacity-50 text-nowrap">Air Quality</small></div></a></div></div><div class="card-footer text-muted">${dist} km away from ${userPositionUpdated === true ? 'you' : 'the Tower of London'}</div></div>`;
 
     popup.setOptions({
         position: position,
@@ -571,7 +470,7 @@ function loadRadarLayer() {
 
         //Create a tile layer and add it to the map below the label layer.
         radarLayer = new atlas.layer.TileLayer({
-            tileUrl: tileUrl.replace('{tilesetId}', 'microsoft.weather.radar.main') + '&tileSize=256',
+            tileUrl: tileUrl.replace('{tilesetId}', 'microsoft.weather.radar.main').replace('{tileSize}', '256'),
             opacity: 0.8,
             tileSize: 256
         });
@@ -608,7 +507,7 @@ function loadInfraredLayer() {
 
         //Create a tile layer and add it to the map below the label layer.
         infraredLayer = new atlas.layer.TileLayer({
-            tileUrl: tileUrl.replace('{tilesetId}', 'microsoft.weather.infrared.main') + '&tileSize=256',
+            tileUrl: tileUrl.replace('{tilesetId}', 'microsoft.weather.infrared.main').replace('{tileSize}', '256'),
             opacity: 0.8,
             tileSize: 256
         });
@@ -645,7 +544,7 @@ function loadContoursLayer() {
         });
 
         var contourDS = new atlas.source.VectorTileSource(null, {
-            tiles: ['https://{azMapsDomain}/map/tile?api-version=2.0&tilesetId=microsoft.dem.contours&zoom={z}&x={x}&y={y}&tileSize=512&view=Auto'],
+            tiles: [tileUrl.replace('{tilesetId}', 'microsoft.dem.contours').replace('{tileSize}', '512')],
             minZoom: 9,
             maxZoom: 14
         });
