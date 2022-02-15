@@ -258,7 +258,7 @@ function search() {
 
     clearSerach();
 
-    var query = searchInput.value;
+    var query = encodeURIComponent(searchInput.value);
 
     searchURL.searchFuzzy(atlas.service.Aborter.timeout(10000), query, {
         lon: map.getCamera().center[0],
