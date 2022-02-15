@@ -4,7 +4,7 @@ var routeURL, searchURL;
 var layerStyle = 'road';
 
 // Default location: Tower of London
-var userPosition = [-0.076083, 51.508120]
+var userPosition = [-0.076083, 51.508120];
 var userPositionUpdated = false;
 
 // Azure Weather Services
@@ -69,11 +69,7 @@ function GetMap() {
 
     //Use MapControlCredential to share authentication between a map control and the service module.
     var pipeline = atlas.service.MapsURL.newPipeline(new atlas.service.MapControlCredential(map));
-
-    //Construct the RouteURL object
     routeURL = new atlas.service.RouteURL(pipeline);
-
-    //Construct the SearchURL object
     searchURL = new atlas.service.SearchURL(pipeline);
 
     //Wait until the map resources are ready.
