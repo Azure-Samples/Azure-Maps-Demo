@@ -166,6 +166,7 @@ function GetMap() {
             position: 'bottom-left'
         });
 
+        map.resize();
     });
 }
 

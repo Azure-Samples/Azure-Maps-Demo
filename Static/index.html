@@ -126,10 +126,9 @@
         </nav>
     </header>
 
-    <main class="flex-fill" style="margin-top:32px;">
-        <div class="container-fluid p-0">
+    <main class="flex-fill" style="margin-top:56px;">
 
-            <div id="demoMap" class="w-100 h-100">
+            <div id="demoMap" class="container-fluid p-0 m-0 w-100 h-100" >
                 <noscript>You need to enable JavaScript to run this app.</noscript>
             </div>
 
@@ -161,16 +160,13 @@
                 <div id="results-panel" class="list-group"></div>
             </div>
 
-        </div>
     </main>
 
-    
-
-    <footer class="footer mt-auto py-3 bg-light">
-        <div class="flex-fill">
+    <footer class="footer mt-auto py-3 pt-0 bg-light">
+        <div class="container-fluid p-0">
             <div id="cookie-banner"></div>
         </div>
-        <div class="container">
+        <div class="container pt-3">
             <p class="float-end mb-1">
                 <a href="https://go.microsoft.com/fwlink/?LinkId=521839" class="link-secondary">Privacy</a>
                 <a href="https://go.microsoft.com/fwlink/?LinkID=206977" class="link-secondary">Terms of use</a>
@@ -188,7 +184,17 @@
     <script src="/js/site.min.js"></script>
 
     <script>
-        window.WcpConsent && WcpConsent.init("en-US", "cookie-banner", null, null, WcpConsent.themes.light);
+        function onConsentChanged(categoryPreferences) {
+            if (map) map.resize();
+        }
+
+        window.WcpConsent && WcpConsent.init("en-US", "cookie-banner", function (err, _siteConsent) {
+            if (!err) {
+                siteConsent = _siteConsent;
+            } else {
+                console.log("Error initializing WcpConsent: " + err);
+            }
+        }, onConsentChanged, WcpConsent.themes.light);
     </script>
 
 </body>
