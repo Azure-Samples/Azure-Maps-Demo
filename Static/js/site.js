@@ -6,6 +6,7 @@ var layerStyle = 'road';
 // Default location: Tower of London
 var userPosition = [-0.076083, 51.508120];
 var userPositionUpdated = false;
+var firsttimeContourLines = true;
 
 // Azure Weather Services
 var weatherUrl = 'https://{azMapsDomain}/weather/currentConditions/json?api-version=1.1&query={query}';
@@ -528,16 +529,21 @@ function loadContoursLayer() {
         contoursButton.className = 'btn btn-warning';
 
         layerStyle = map.getStyle().style;
-
         map.setStyle({
             style: 'grayscale_dark'
         });
 
-        map.setCamera({
-            zoom: 13,
-            pitch: 0,
-            bearing: 0
-        });
+        if (firsttimeContourLines === true) {
+
+            map.setCamera({
+                center: [6, 46],
+                zoom: 13,
+                pitch: 0,
+                bearing: 0
+            });
+
+            firsttimeContourLines = false;
+        }
 
         var contourDS = new atlas.source.VectorTileSource(null, {
             tiles: [tileUrl.replace('{tilesetId}', 'microsoft.dem.contours').replace('{tileSize}', '512')],
