@@ -14,14 +14,6 @@
     <link href="/css/site.min.css" rel="stylesheet">
 
     <link href="/favicon.ico" rel="shortcut icon">
-
-    <script>
-        (function (c, l, a, r, i, t, y) {
-            c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
-            t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
-            y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
-        })(window, document, "clarity", "script", "ah2giqjbmc");
-    </script>
 </head>
 <body onload="GetMap()" class="d-flex flex-column h-100">
     <!-- Icons from https://icons.getbootstrap.com/ -->
@@ -78,6 +70,10 @@
         <symbol id="contours-icon" viewBox="0 0 16 16" fill="black">
             <path d="m14.12 10.163 1.715.858c.22.11.22.424 0 .534L8.267 15.34a.598.598 0 0 1-.534 0L.165 11.555a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.66zM7.733.063a.598.598 0 0 1 .534 0l7.568 3.784a.3.3 0 0 1 0 .535L8.267 8.165a.598.598 0 0 1-.534 0L.165 4.382a.299.299 0 0 1 0-.535L7.733.063z" />
             <path d="m14.12 6.576 1.715.858c.22.11.22.424 0 .534l-7.568 3.784a.598.598 0 0 1-.534 0L.165 7.968a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.659z" />
+        </symbol>
+        <symbol id="clock-icon" viewBox="0 0 16 16" fill="black">
+            <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
+            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
         </symbol>
     </svg>
 
@@ -162,16 +158,17 @@
 
     </main>
 
-    <footer class="footer mt-auto py-3 pt-0 bg-light">
+    <footer class="footer mt-auto py-2 pt-0 bg-light">
         <div class="container-fluid p-0">
             <div id="cookie-banner"></div>
         </div>
-        <div class="container pt-3">
-            <p class="float-end mb-1">
-                <a href="https://go.microsoft.com/fwlink/?LinkId=521839" class="link-secondary">Privacy</a>
-                <a href="https://go.microsoft.com/fwlink/?LinkID=206977" class="link-secondary">Terms of use</a>
-            </p>
-            <p class="mb-1">Azure Maps &copy; <a href="https://www.microsoft.com/" class="link-secondary">Microsoft</a>, but please <a href="https://github.com/Azure-Samples/Azure-Maps-Demo" class="link-secondary" title="Open Source on GitHub">download</a> and customize it for yourself!</p>
+        <div class="container pt-1">
+            <ul class="nav float-end">
+                <li class="nav-item"><a href="https://go.microsoft.com/fwlink/?LinkId=521839" class="nav-link px-2 text-muted">Terms of use</a></li>
+                <li class="nav-item"><a href="https://go.microsoft.com/fwlink/?LinkID=206977" class="nav-link px-2 text-muted">Privacy</a></li>
+                <li class="nav-item"><a href="#" onclick="siteConsent.manageConsent()" class="nav-link px-2 text-muted">Manage cookies</a></li>
+            </ul>
+            <p class="mb-0">Azure Maps &copy; <a href="https://www.microsoft.com/" class="link-secondary">Microsoft</a>, but please <a href="https://github.com/Azure-Samples/Azure-Maps-Demo" class="link-secondary">download</a> and customize it for yourself!</p>
             <p class="mb-0">New to Azure Maps? <a href="https://azuremaps.com" class="link-secondary">Visit the homepage</a> or read our <a href="https://aka.ms/AzureMapsGettingStarted">getting started guide</a>.</p>
         </div>
     </footer>
@@ -184,17 +181,30 @@
     <script src="/js/site.min.js"></script>
 
     <script>
-        function onConsentChanged(categoryPreferences) {
-            if (map) map.resize();
-        }
-
         window.WcpConsent && WcpConsent.init("en-US", "cookie-banner", function (err, _siteConsent) {
             if (!err) {
                 siteConsent = _siteConsent;
+                startAnalytics();
             } else {
                 console.log("Error initializing WcpConsent: " + err);
             }
         }, onConsentChanged, WcpConsent.themes.light);
+
+        function startAnalytics() {
+            var userConsent = siteConsent.getConsent();
+            if (userConsent.Analytics === true) {
+                (function (c, l, a, r, i, t, y) {
+                    c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
+                    t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+                    y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+                })(window, document, "clarity", "script", "ah2giqjbmc");
+            }
+        }
+
+        function onConsentChanged(categoryPreferences) {
+            map.resize();
+            startAnalytics();
+        }
     </script>
 
 </body>
