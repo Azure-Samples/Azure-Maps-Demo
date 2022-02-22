@@ -108,7 +108,7 @@
 
         function startAnalytics() {
             var userConsent = siteConsent.getConsent();
-            if (userConsent.Analytics === true) {
+            if (userConsent.Analytics === true && userConsent.Advertising === true) {
                 (function (c, l, a, r, i, t, y) {
                     c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
                     t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
@@ -118,7 +118,6 @@
         }
 
         function onConsentChanged(categoryPreferences) {
-            map.resize();
             startAnalytics();
         }
     </script>

@@ -22,4 +22,8 @@
     #search {
         display:none;
     }
+
+    footer {
+        display: none;
+    }
 }

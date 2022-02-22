@@ -78,7 +78,7 @@
     </svg>
 
     <header>
-        <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <nav class="navbar navbar-expand-md navbar-dark d-flex bg-dark">
             <div class="container-fluid">
                 <a class="navbar-brand" href="/">
                     <svg width="20" height="20" class="me-2 mb-1" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -122,46 +122,47 @@
         </nav>
     </header>
 
-    <main class="flex-fill" style="margin-top:56px;">
+    <div class="container-fluid p-0">
+        <div id="cookie-banner"></div>
+    </div>
 
-            <div id="demoMap" class="container-fluid p-0 m-0 w-100 h-100" >
-                <noscript>You need to enable JavaScript to run this app.</noscript>
-            </div>
+    <main class="flex-fill">
 
-            <div id="search">
-                <div class="card-body">
-                    <div class="btn-group float-end" role="group">
-                        <button title="Locate Me" id="locate-me-button" type="button" class="btn btn-light">
-                            <svg id="locate-me-icon" width="1.0em" height="1.0em"><use xlink:href="#bullseye-icon" /></svg>
-                            <span id="locate-me-spinner" class="spinner-grow spinner-grow-sm" style="display:none" role="status" aria-hidden="true"></span>
-                        </button>
-                        <button title="Weather Radar" id="radar-button" type="button" class="btn btn-light">
-                            <svg width="1.0em" height="1.0em"><use xlink:href="#cloud-icon" /></svg>
-                        </button>
-                        <button title="Weather Infrared" id="infrared-button" type="button" class="btn btn-light">
-                            <svg width="1.0em" height="1.0em"><use xlink:href="#thermometer-icon" /></svg>
-                        </button>
-                        <button title="Contour Lines" id="contours-button" type="button" class="btn btn-light">
-                            <svg width="1.0em" height="1.0em"><use xlink:href="#contours-icon" /></svg>
-                        </button>
-                    </div>
-                    <label for="search-input" class="form-label">Search for point of interest</label>
-                    <div class="input-group mb-3">
-                        <span class="input-group-text">
-                            <svg class="flex-shrink-0" width="1.0em" height="1.0em"><use xlink:href="#search-icon" /></svg>
-                        </span>
-                        <input id="search-input" type="search" class="form-control" placeholder="">
-                    </div>
+        <div id="demoMap" class="container-fluid p-0 m-0 w-100 h-100">
+            <noscript>You need to enable JavaScript to run this app.</noscript>
+        </div>
+
+        <div id="search">
+            <div class="card-body">
+                <div class="btn-group float-end" role="group">
+                    <button title="Locate Me" id="locate-me-button" type="button" class="btn btn-light">
+                        <svg id="locate-me-icon" width="1.0em" height="1.0em"><use xlink:href="#bullseye-icon" /></svg>
+                        <span id="locate-me-spinner" class="spinner-grow spinner-grow-sm" style="display:none" role="status" aria-hidden="true"></span>
+                    </button>
+                    <button title="Weather Radar" id="radar-button" type="button" class="btn btn-light">
+                        <svg width="1.0em" height="1.0em"><use xlink:href="#cloud-icon" /></svg>
+                    </button>
+                    <button title="Weather Infrared" id="infrared-button" type="button" class="btn btn-light">
+                        <svg width="1.0em" height="1.0em"><use xlink:href="#thermometer-icon" /></svg>
+                    </button>
+                    <button title="Contour Lines" id="contours-button" type="button" class="btn btn-light">
+                        <svg width="1.0em" height="1.0em"><use xlink:href="#contours-icon" /></svg>
+                    </button>
                 </div>
-                <div id="results-panel" class="list-group"></div>
+                <label for="search-input" class="form-label">Search for point of interest</label>
+                <div class="input-group mb-3">
+                    <span class="input-group-text">
+                        <svg class="flex-shrink-0" width="1.0em" height="1.0em"><use xlink:href="#search-icon" /></svg>
+                    </span>
+                    <input id="search-input" type="search" class="form-control" placeholder="">
+                </div>
             </div>
+            <div id="results-panel" class="list-group"></div>
+        </div>
 
     </main>
 
     <footer class="footer mt-auto py-2 pt-0 bg-light">
-        <div class="container-fluid p-0">
-            <div id="cookie-banner"></div>
-        </div>
         <div class="container pt-1">
             <ul class="nav float-end">
                 <li class="nav-item"><a href="https://go.microsoft.com/fwlink/?LinkId=521839" class="nav-link px-2 text-muted">Terms of use</a></li>
@@ -192,7 +193,7 @@
 
         function startAnalytics() {
             var userConsent = siteConsent.getConsent();
-            if (userConsent.Analytics === true) {
+            if (userConsent.Analytics === true && userConsent.Advertising === true) {
                 (function (c, l, a, r, i, t, y) {
                     c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
                     t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
