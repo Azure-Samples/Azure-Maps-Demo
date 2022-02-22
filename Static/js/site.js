@@ -1,12 +1,12 @@
 ﻿var map, datasource, popup, radarLayer, infraredLayer, contourNumbersLayer, contourLayer, centerMapOnResults;
 var searchInput, locateMeButton, resultsPanel, searchInputLength, radarButton, infraredButton, contoursButton;
 var routeURL, searchURL;
-var layerStyle = 'road';
 
 // Default location: Tower of London
 var userPosition = [-0.076083, 51.508120];
 var userPositionUpdated = false;
 var firsttimeContourLines = true;
+var layerStyle = 'road';
 
 // Azure Weather Services
 var weatherUrl = 'https://{azMapsDomain}/weather/currentConditions/json?api-version=1.1&query={query}';
@@ -101,9 +101,20 @@ function GetMap() {
         var routeLayer = new atlas.layer.LineLayer(datasource, null, {
             strokeColor: ['get', 'strokeColor'],
             strokeWidth: ['get', 'strokeWidth'],
+            strokeOpacity: 1.0,
             lineJoin: 'round',
             lineCap: 'round',
             filter: ['==', 'layer', 'routeLayer']
+        });
+
+        // isochrone
+        var isochroneLayer = new atlas.layer.PolygonLayer(datasource, null, {
+            fillColor: 'rgba(0, 200, 0, 0.4)',
+            filter: ['==', 'layer', 'isochroneLayer']
+        });
+        var isochroneLineLayer = new atlas.layer.LineLayer(datasource, null, {
+            strokeColor: 'green',
+            filter: ['==', 'layer', 'isochroneLayer']
         });
 
         //Create a polygon layer to render the filled in area of the accuracy circle for the users position.
@@ -111,7 +122,6 @@ function GetMap() {
             fillColor: 'rgba(0, 153, 255, 0.5)',
             filter: ['==', 'layer', 'locateMe']
         });
-
         //Create a symbol layer to render the users position on the map.
         var loacteMeSymbolLayer = new atlas.layer.SymbolLayer(datasource, null, {
             iconOptions: {
@@ -122,13 +132,19 @@ function GetMap() {
             filter: ['==', 'layer', 'locateMe']
         });
 
-        map.layers.add([loacteMeSymbolLayer, loacteMeLayer, searchLayer]);
+        map.layers.add([loacteMeSymbolLayer, loacteMeLayer, searchLayer, isochroneLayer, isochroneLineLayer]);
         map.layers.add(routeLayer, 'labels');
 
         //Add a click event to the search layer and show a popup when a result is clicked.
         map.events.add("click", searchLayer, function (e) {
             if (e.shapes && e.shapes.length > 0) {
                 showPopupPOI(e.shapes[0]);
+            }
+        });
+
+        map.events.add("click", function (e) {
+            if (e.shapes && e.shapes.length > 0 && e.shapes[0].source) {
+                showPopup(e.position);
             }
         });
 
@@ -389,6 +405,84 @@ function truckClicked(id) {
     });
 
     popup.close(map);
+}
+
+function startpositionClicked(position) {
+
+    userPosition = position;
+    var userPoint = new atlas.data.Point(userPosition);
+
+    datasource.add(new atlas.data.Feature(userPoint, {
+        layer: "locateMe",
+    }));
+
+    //Center the map on the users position.
+    map.setCamera({
+        center: userPosition,
+    });
+
+    userPositionUpdated = true;
+
+    popup.close();
+}
+
+function isochroneClicked(position) {
+
+    var userPoint = new atlas.data.Point(position);
+
+    datasource.add(new atlas.data.Feature(userPoint, {
+        layer: "locateMe",
+    }));
+
+    map.setCamera({
+        center: position,
+        zoom: 11,
+        pitch: 0,
+        bearing: 0
+    });
+
+    Promise.all([
+        routeURL.calculateRouteRange(atlas.service.Aborter.timeout(10000), position, {
+            traffic: true,
+            timeBudgetInSec: 15 * 60
+        }),
+        routeURL.calculateRouteRange(atlas.service.Aborter.timeout(10000), position, {
+            traffic: true,
+            timeBudgetInSec: 30 * 60
+        })
+    ]).then(values => {
+        for (var i = 0; i < values.length; i++) {
+            var f = values[i].geojson.getFeatures().features[0];
+            f.properties.layer = 'isochroneLayer';
+
+            datasource.add(f);
+        }
+    });
+
+    popup.close();
+}
+
+function showPopup(position) {
+    popup.close();
+
+    searchURL.searchAddressReverse(atlas.service.Aborter.timeout(10000), position, {
+        view: 'Auto'
+    }).then((result) => {
+
+        if (result.addresses.length > 0) {
+            var p = result.addresses[0];
+
+            var name = p.address.street ? p.address.street : p.address.freeformAddress;
+            var html = `<div class="card" style="width:420px;"><div class="card-header"><h5 class="card-title text-wrap">${name}</h5></div><div class="card-body"><div class="list-group"><a href="#" onclick="startpositionClicked([${position[0]},${position[1]}])" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true"><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#bullseye-icon" /></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Use as starting point</h6><p class="mb-0 opacity-75 text-wrap">${p.address.freeformAddress}</p></div><small class="opacity-50 text-nowrap">Geocoding</small></div></a><a href="#" onclick="isochroneClicked([${position[0]},${position[1]}])" class="list-group-item list-group-item-action d-flex gap-3 py-3" aria-current="true"><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#clock-icon" /></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Travel time around this point</h6><p class="mb-0 opacity-75 text-wrap">How far can you drive in 15 and 30 minutes from this location including traffic conditions?</p></div><small class="opacity-50 text-nowrap">Isochrone</small></div></a></div></div></div></div>`;
+
+            popup.setOptions({
+                position: position,
+                content: html
+            });
+
+            popup.open(map);
+        }
+    });
 }
 
 async function showPopupPOI(shape) {
