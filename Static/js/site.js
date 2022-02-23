@@ -299,7 +299,7 @@ function search() {
 
     clearSearch();
 
-    var query = encodeURIComponent(searchInput.value.trim());
+    var query = searchInput.value.trim();
     var elm = document.getElementById('search-country');
     var countryIso = elm.options[elm.selectedIndex].value;
 
@@ -313,12 +313,12 @@ function search() {
         view: 'Auto'
     }).then((results) => {
 
-        searchData = results.geojson.getFeatures();
+        data = results.geojson.getFeatures();
 
         //Create the HTML for the results list.
         var html = "";
-        for (var i = 0; i < searchData.features.length; i++) {
-            var r = searchData.features[i];
+        for (var i = 0; i < data.features.length; i++) {
+            var r = data.features[i];
 
             var icon = 'map-icon';
             var name = 'Location';
@@ -355,7 +355,7 @@ function search() {
         }
         resultsPanel.innerHTML = html;
 
-        datasource.add(searchData);
+        datasource.add(data);
 
         if (centerMapOnResults) {
             map.setCamera({
