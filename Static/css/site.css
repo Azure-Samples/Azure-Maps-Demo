@@ -3,7 +3,7 @@
     background: #fff;
     left: 0px;
     top: 56px;
-    width: 400px;
+    width: 350px;
     box-shadow: 0px 24px 74px 0px rgba(0, 0, 0, .32);
     border: 1px solid #ccc;
     overflow: hidden;
@@ -15,7 +15,7 @@
     padding: 0;
     background-color: #fff;
     overflow-y: auto;
-    max-height: calc(100vh - 320px);
+    max-height: calc(100vh - 480px);
 }
 
 @media only screen and (max-width: 640px) {

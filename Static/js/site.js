@@ -1,49 +1,62 @@
-﻿var map, datasource, popup, radarLayer, infraredLayer, contourNumbersLayer, contourLayer, centerMapOnResults;
-var searchInput, locateMeButton, resultsPanel, searchInputLength, radarButton, infraredButton, contoursButton;
-var routeURL, searchURL;
+﻿/* Azure Maps Demo
+ * """""""""""""""
+ * 
+ * MIT License - Copyright (c) Microsoft Corporation. All rights reserved.
+ * 
+ */
+
+// Global
+var map, datasource, popup;
+var radarLayer, infraredLayer, contourNumbersLayer, contourLayer;
+var searchInput, locateMeButton, resultsPanel, searchInputLength, radarButton, infraredButton, contoursButton, clearButton;
 
 // Default location: Tower of London
 var userPosition = [-0.076083, 51.508120];
 var userPositionUpdated = false;
 var firsttimeContourLines = true;
 var layerStyle = 'road';
+var centerMapOnResults = false;
 
-// Azure Weather Services
+// Azure Maps API REST Services
 var weatherUrl = 'https://{azMapsDomain}/weather/currentConditions/json?api-version=1.1&query={query}';
 var tileUrl = 'https://{azMapsDomain}/map/tile?api-version=2.1&tilesetId={tilesetId}&zoom={z}&x={x}&y={y}&tileSize={tileSize}&view=Auto';
 var airQualityUrl = 'https://{azMapsDomain}/weather/airQuality/current/json?api-version=1.1&query={query}';
+var routeURL;
+var searchURL;
 
 function GetMap() {
-    //Initialize a map instance.
+    // Initialize a map instance.
     map = new atlas.Map('demoMap', {
         center: userPosition,
         zoom: 16,
         pitch: 60,
         showBuildingModels: true,
         view: 'Auto',
+        style: layerStyle,
 
-        //Add authentication details for connecting to Azure Maps.
+        // Add authentication details for connecting to Azure Maps.
         authOptions: {
-            //Use Azure Active Directory authentication.
+            // Use Azure Active Directory authentication.
             authType: 'anonymous',
-            clientId: 'e6b6ab59-eb5d-4d25-aa57-581135b927f0', //Your Azure Maps client id for accessing your Azure Maps account.
+            // Your Azure Maps client id for accessing your Azure Maps account.
+            clientId: 'e6b6ab59-eb5d-4d25-aa57-581135b927f0',
             getToken: function (resolve, reject, map) {
-                //URL to your authentication service that retrieves an Azure Active Directory Token.
+                // URL to your authentication service that retrieves an Azure Active Directory Token.
                 var tokenServiceUrl = "https://samples.azuremaps.com/api/GetAzureMapsToken";
-
                 fetch(tokenServiceUrl).then(r => r.text()).then(token => resolve(token));
             }
 
-            //Alternatively, use an Azure Maps key. Get an Azure Maps key at https://azure.com/maps. NOTE: The primary key should be used as the key.
+            // Alternatively, use an Azure Maps key. Get an Azure Maps key at https://azure.com/maps.
+            // NOTE: The primary key should be used as the key.
             //authType: 'subscriptionKey',
             //subscriptionKey: '[YOUR_AZURE_MAPS_KEY]'
         }
     });
 
-    //Store a reference to the Search Info Panel.
+    // Store a reference to the Search Info Panel.
     resultsPanel = document.getElementById("results-panel");
 
-    //Add key up event to the search box.
+    // Add key up event to the search box.
     searchInput = document.getElementById("search-input");
     searchInput.addEventListener("keyup", searchInputKeyup);
     searchInput.addEventListener('search', function () {
@@ -52,7 +65,12 @@ function GetMap() {
         }
     });
 
-    //Add click events
+    // Use MapControlCredential to share authentication between a map control and the service module.
+    var pipeline = atlas.service.MapsURL.newPipeline(new atlas.service.MapControlCredential(map));
+    routeURL = new atlas.service.RouteURL(pipeline);
+    searchURL = new atlas.service.SearchURL(pipeline);
+
+    // Add click events
     locateMeButton = document.getElementById("locate-me-button");
     locateMeButton.addEventListener("click", locateMe);
 
@@ -65,18 +83,19 @@ function GetMap() {
     contoursButton = document.getElementById("contours-button");
     contoursButton.addEventListener("click", loadContoursLayer);
 
-    //Create a popup which we can reuse for each result.
+    clearButton = document.getElementById("clearmap-button");
+    clearButton.addEventListener("click", function () {
+        clearSearch();
+        searchInput.value = '';
+    });
+
+    // Create a popup which we can reuse for each result.
     popup = new atlas.Popup();
 
-    //Use MapControlCredential to share authentication between a map control and the service module.
-    var pipeline = atlas.service.MapsURL.newPipeline(new atlas.service.MapControlCredential(map));
-    routeURL = new atlas.service.RouteURL(pipeline);
-    searchURL = new atlas.service.SearchURL(pipeline);
-
-    //Wait until the map resources are ready.
+    // Wait until the map resources are ready.
     map.events.add('ready', function () {
 
-        //Create a data source and add it to the map.
+        // Create a data source and add it to the map.
         datasource = new atlas.source.DataSource();
         map.sources.add(datasource);
 
@@ -87,7 +106,7 @@ function GetMap() {
         map.imageSprite.add('map-icon', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgZmlsbD0iIzQyNEY4NSIgdmlld0JveD0iMCAwIDE2IDE2Ij48cGF0aCBmaWxsLXJ1bGU9ImV2ZW5vZGQiIGQ9Ik0xNS44MTcuMTEzQS41LjUgMCAwIDEgMTYgLjV2MTRhLjUuNSAwIDAgMS0uNDAyLjQ5bC01IDFhLjUwMi41MDIgMCAwIDEtLjE5NiAwTDUuNSAxNS4wMWwtNC45MDIuOThBLjUuNSAwIDAgMSAwIDE1LjV2LTE0YS41LjUgMCAwIDEgLjQwMi0uNDlsNS0xYS41LjUgMCAwIDEgLjE5NiAwTDEwLjUuOTlsNC45MDItLjk4YS41LjUgMCAwIDEgLjQxNS4xMDN6TTEwIDEuOTFsLTQtLjh2MTIuOThsNCAuOFYxLjkxem0xIDEyLjk4IDQtLjhWMS4xMWwtNCAuOHYxMi45OHptLTYtLjhWMS4xMWwtNCAuOHYxMi45OGw0LS44eiIgLz48L3N2Zz4=');
         map.imageSprite.add('compass-icon', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgZmlsbD0iI0M4NUVBRSIgdmlld0JveD0iMCAwIDE2IDE2Ij48cGF0aCBkPSJNOCAxNi4wMTZhNy41IDcuNSAwIDAgMCAxLjk2Mi0xNC43NEExIDEgMCAwIDAgOSAwSDdhMSAxIDAgMCAwLS45NjIgMS4yNzZBNy41IDcuNSAwIDAgMCA4IDE2LjAxNnptNi41LTcuNWE2LjUgNi41IDAgMSAxLTEzIDAgNi41IDYuNSAwIDAgMSAxMyAweiIgLz48cGF0aCBkPSJtNi45NCA3LjQ0IDQuOTUtMi44My0yLjgzIDQuOTUtNC45NDkgMi44MyAyLjgyOC00Ljk1eiIgLz48L3N2Zz4=');
 
-        //Add layers for rendering the search results.
+        // Add layers for rendering the search results.
         var searchLayer = new atlas.layer.SymbolLayer(datasource, null, {
             iconOptions: {
                 image: ['get', 'icon'],
@@ -97,7 +116,7 @@ function GetMap() {
             filter: ['==', 'layer', 'searchLayer']
         });
 
-        //Add layers for rendering the car and truck routes.
+        // Add layers for rendering the car and truck routes.
         var routeLayer = new atlas.layer.LineLayer(datasource, null, {
             strokeColor: ['get', 'strokeColor'],
             strokeWidth: ['get', 'strokeWidth'],
@@ -107,7 +126,7 @@ function GetMap() {
             filter: ['==', 'layer', 'routeLayer']
         });
 
-        // isochrone
+        // Isochrone layers
         var isochroneLayer = new atlas.layer.PolygonLayer(datasource, null, {
             fillColor: 'rgba(0, 200, 0, 0.4)',
             filter: ['==', 'layer', 'isochroneLayer']
@@ -117,12 +136,12 @@ function GetMap() {
             filter: ['==', 'layer', 'isochroneLayer']
         });
 
-        //Create a polygon layer to render the filled in area of the accuracy circle for the users position.
+        // Create a polygon layer to render the filled in area of the accuracy circle for the users position.
         var loacteMeLayer = new atlas.layer.PolygonLayer(datasource, null, {
             fillColor: 'rgba(0, 153, 255, 0.5)',
             filter: ['==', 'layer', 'locateMe']
         });
-        //Create a symbol layer to render the users position on the map.
+        // Create a symbol layer to render the users position on the map.
         var loacteMeSymbolLayer = new atlas.layer.SymbolLayer(datasource, null, {
             iconOptions: {
                 image: 'marker-red',
@@ -132,10 +151,11 @@ function GetMap() {
             filter: ['==', 'layer', 'locateMe']
         });
 
+        // Add layers to the map
         map.layers.add([loacteMeSymbolLayer, loacteMeLayer, searchLayer, isochroneLayer, isochroneLineLayer]);
         map.layers.add(routeLayer, 'labels');
 
-        //Add a click event to the search layer and show a popup when a result is clicked.
+        // Add a click event to the search layer and show a popup when a result is clicked.
         map.events.add("click", searchLayer, function (e) {
             if (e.shapes && e.shapes.length > 0) {
                 showPopupPOI(e.shapes[0]);
@@ -148,7 +168,7 @@ function GetMap() {
             }
         });
 
-        //Create an instance of the drawing manager and display the drawing toolbar.
+        // Create an instance of the drawing manager and display the drawing toolbar.
         var drawingManager = new atlas.drawing.DrawingManager(map, {
             interactionType: 'click',
             toolbar: new atlas.control.DrawingToolbar({
@@ -156,14 +176,14 @@ function GetMap() {
             })
         });
 
-        //When the drawing started, check to see if the interaction type is set to click, and if it is, re-enable panning of the map.
+        // When the drawing started, check to see if the interaction type is set to click, and if it is, re-enable panning of the map.
         map.events.add('drawingstarted', drawingManager, () => {
             if (drawingManager.getOptions().interactionType === 'click') {
                 map.setUserInteraction({ dragPanInteraction: true });
             }
         });
 
-        //Map Controls
+        // Map Controls
         map.controls.add([
             new atlas.control.StyleControl({
                 autoSelectionMode: true,
@@ -173,7 +193,7 @@ function GetMap() {
             new atlas.control.ZoomControl(),
             new atlas.control.PitchControl(),
             new atlas.control.CompassControl(),
-            
+
         ], {
             position: 'top-right'
         });
@@ -182,11 +202,12 @@ function GetMap() {
             position: 'bottom-left'
         });
 
+        // Redraw the map to fix a scaling issue.
         map.resize();
     });
 }
 
-function clearSerach() {
+function clearSearch() {
     resultsPanel.innerHTML = '';
     datasource.clear();
     popup.close();
@@ -197,9 +218,6 @@ function locateMe(e) {
     var locateMeIcon = document.getElementById("locate-me-icon");
     var locateMeSpinner = document.getElementById("locate-me-spinner");
 
-    clearSerach();
-    searchInput.value = '';
-
     locateMeButton.disabled = true;
     locateMeButton.className = 'btn btn-warning';
     locateMeIcon.style.display = 'none';
@@ -208,16 +226,8 @@ function locateMe(e) {
     //User position
     navigator.geolocation.getCurrentPosition(function (position) {
 
-        //Create a circle from a Point feature by providing it a subType property set to "Circle" and radius property.
+        userPositionUpdated = true;
         userPosition = [position.coords.longitude, position.coords.latitude];
-        var userPoint = new atlas.data.Point(userPosition);
-
-        //Add a point feature with Circle properties to the data source for the users position. This will be rendered as a polygon.
-        datasource.add(new atlas.data.Feature(userPoint, {
-            layer: "locateMe",
-            subType: "Circle",
-            radius: position.coords.accuracy
-        }));
 
         //Center the map on the users position.
         map.setCamera({
@@ -227,19 +237,36 @@ function locateMe(e) {
             bearing: 0
         });
 
-        userPositionUpdated = true;
+        searchURL.searchAddressReverse(atlas.service.Aborter.timeout(10000), userPosition, {
+            view: 'Auto'
+        }).then((result) => {
 
-        locateMeButton.disabled = false;
-        locateMeButton.className = 'btn btn-light';
-        locateMeIcon.style.display = 'block';
-        locateMeSpinner.style.display = 'none';
+            if (result.addresses.length > 0) {
+                document.querySelector('.form-select').value = result.addresses[0].address.countryCode;
+                search();
+            }
+
+            //Create a circle from a Point feature by providing it a subType property set to "Circle" and radius property.
+            var userPoint = new atlas.data.Point(userPosition);
+            //Add a point feature with Circle properties to the data source for the users position. This will be rendered as a polygon.
+            datasource.add(new atlas.data.Feature(userPoint, {
+                layer: "locateMe",
+                subType: "Circle",
+                radius: position.coords.accuracy
+            }));
+
+            locateMeButton.disabled = false;
+            locateMeButton.className = 'btn btn-outline-secondary';
+            locateMeIcon.style.display = 'block';
+            locateMeSpinner.style.display = 'none';
+        });
 
     }, function (error) {
         //If an error occurs when trying to access the users position information, display an error message.
         alert('Sorry, your position information is unavailable!');
 
         locateMeButton.disabled = false;
-        locateMeButton.className = 'btn btn-light';
+        locateMeButton.className = 'btn btn-outline-secondary';
         locateMeIcon.style.display = 'block';
         locateMeSpinner.style.display = 'none';
     });
@@ -270,23 +297,28 @@ function searchInputKeyup(e) {
 
 function search() {
 
-    clearSerach();
+    clearSearch();
 
-    var query = encodeURIComponent(searchInput.value);
+    var query = encodeURIComponent(searchInput.value.trim());
+    var elm = document.getElementById('search-country');
+    var countryIso = elm.options[elm.selectedIndex].value;
+
+    if (!query) return;
 
     searchURL.searchFuzzy(atlas.service.Aborter.timeout(10000), query, {
         lon: map.getCamera().center[0],
         lat: map.getCamera().center[1],
-        maxFuzzyLevel: 3,
+        countrySet: [countryIso],
+        typeahead: true,
         view: 'Auto'
     }).then((results) => {
 
-        var data = results.geojson.getFeatures();
+        searchData = results.geojson.getFeatures();
 
         //Create the HTML for the results list.
         var html = "";
-        for (var i = 0; i < data.features.length; i++) {
-            var r = data.features[i];
+        for (var i = 0; i < searchData.features.length; i++) {
+            var r = searchData.features[i];
 
             var icon = 'map-icon';
             var name = 'Location';
@@ -323,7 +355,7 @@ function search() {
         }
         resultsPanel.innerHTML = html;
 
-        datasource.add(data);
+        datasource.add(searchData);
 
         if (centerMapOnResults) {
             map.setCamera({
@@ -334,10 +366,11 @@ function search() {
 }
 
 function itemClicked(id) {
-    //Center the map over the clicked item from the result list.
+    
     var shape = datasource.getShapeById(id);
     var coordinates = shape.getCoordinates();
 
+    //Center the map over the clicked item from the result list.
     map.setCamera({
         center: coordinates,
         zoom: 16
@@ -349,6 +382,7 @@ function itemClicked(id) {
 function itemHovered(id) {
     //Show a popup when hovering an item in the result list.
     var shape = datasource.getShapeById(id);
+
     showPopupPOI(shape);
 }
 
@@ -373,6 +407,8 @@ function addressClicked(id) {
         routeLine.properties.layer = 'routeLayer';
 
         datasource.add(routeLine);
+    }, reason => {
+        alert('Sorry, it was not possible to route to this location.');
     });
 
     popup.close(map);
@@ -402,6 +438,8 @@ function truckClicked(id) {
         // We want this to render below the car route which will likely be added to the data source faster,
         // so insert it at index 0.
         datasource.add(routeLine, 0);
+    }, reason => {
+        alert('Sorry, it was not possible to route to this location.');
     });
 
     popup.close(map);
@@ -416,7 +454,7 @@ function startpositionClicked(position) {
         layer: "locateMe",
     }));
 
-    //Center the map on the users position.
+    // Center the map on the users position.
     map.setCamera({
         center: userPosition,
     });
@@ -457,6 +495,8 @@ function isochroneClicked(position) {
 
             datasource.add(f);
         }
+    }, reason => {
+        alert('Sorry, it was not possible to calculate travel time for this location.');
     });
 
     popup.close();
@@ -482,6 +522,8 @@ function showPopup(position) {
 
             popup.open(map);
         }
+    }, reason => {
+        alert('Sorry, we where unable to find address details for this location.');
     });
 }
 
@@ -533,7 +575,7 @@ async function showPopupPOI(shape) {
         return null;
     });
 
-    var html = `<div class="card" style="width:420px;"><div class="card-header"><h5 class="card-title">${name}</h5></div><div class="card-body"><div class="list-group"><a href="#" onclick="addressClicked('${shape.data.id}')" class="list-group-item list-group-item-action d-flex gap-3 py-3" ><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#cursor-icon" /></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Address</h6><p class="mb-0 opacity-75 text-wrap">${properties.address.freeformAddress}</p></div></div><small class="opacity-50 text-nowrap">Directions</small></a><a href="#" onclick="truckClicked('${shape.data.id}')" class="list-group-item list-group-item-action d-flex gap-3 py-3" ><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#truck-icon" /></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Truck Route</h6><p class="mb-0 opacity-75 text-wrap">Route that is optimized for commercial vehicles, like for trucks.</p></div></div><small class="opacity-50 text-nowrap">Directions</small></a><a target="_blank" href="tel:${phone.replace(/\s/g, '')}" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${phone === '' ? 'visually-hidden' : ''}" ><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#phone-icon" /></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Phone</h6><p class="mb-0 opacity-75">${phone}</p></div><small class="opacity-50 text-nowrap">POI</small></div></a><a target="_blank" href="http://${url.replace(/^https?\:\/\//i, '')}" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${url === '' ? 'visually-hidden' : ''}" ><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#link-icon" /></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Website</h6><p class="mb-0 opacity-75">${url.replace(/^https?\:\/\//i, '')}</p></div><small class="opacity-50 text-nowrap">POI</small></div></a><a target="_blank" href="https://docs.microsoft.com/rest/api/maps/weather/get-current-conditions" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${!weather ? 'visually-hidden' : ''}" ><img width="32" height="32" class="flex-shrink-0" src="/images/icons/weather-black/${weather.iconCode}.png"/><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">${weather.phrase}</h6><p class="mb-0 opacity-75 text-wrap">Temperature ${weather.temperature.value}&#176;${weather.temperature.unit} and feels like ${weather.realFeelTemperature.value}&#176;${weather.realFeelTemperature.unit}</p></div><small class="opacity-50 text-nowrap">Weather</small></div></a><a target="_blank" href="https://docs.microsoft.com//rest/api/maps/weather/get-current-air-quality" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${!airQuality ? 'visually-hidden' : ''}" ><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#balloon-icon" /></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">${airQuality.category}</h6><p class="mb-0 opacity-75 text-wrap">${airQuality.description}</p></div><small class="opacity-50 text-nowrap">Air Quality</small></div></a></div></div><div class="card-footer text-muted">${dist} km away from ${userPositionUpdated === true ? 'you' : 'the Tower of London'}</div></div>`;
+    var html = `<div class="card" style="width:420px;"><div class="card-header"><h5 class="card-title text-wrap">${name}</h5></div><div class="card-body"><div class="list-group"><a href="#" onclick="addressClicked('${shape.data.id}')" class="list-group-item list-group-item-action d-flex gap-3 py-3" ><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#cursor-icon" /></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Address</h6><p class="mb-0 opacity-75 text-wrap">${properties.address.freeformAddress}</p></div></div><small class="opacity-50 text-nowrap">Directions</small></a><a href="#" onclick="truckClicked('${shape.data.id}')" class="list-group-item list-group-item-action d-flex gap-3 py-3" ><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#truck-icon" /></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Truck Route</h6><p class="mb-0 opacity-75 text-wrap">Route that is optimized for commercial vehicles, like for trucks.</p></div></div><small class="opacity-50 text-nowrap">Directions</small></a><a target="_blank" href="tel:${phone.replace(/\s/g, '')}" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${phone === '' ? 'visually-hidden' : ''}" ><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#phone-icon" /></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Phone</h6><p class="mb-0 opacity-75">${phone}</p></div><small class="opacity-50 text-nowrap">POI</small></div></a><a target="_blank" href="http://${url.replace(/^https?\:\/\//i, '')}" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${url === '' ? 'visually-hidden' : ''}" ><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#link-icon" /></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">Website</h6><p class="mb-0 opacity-75">${url.replace(/^https?\:\/\//i, '')}</p></div><small class="opacity-50 text-nowrap">POI</small></div></a><a target="_blank" href="https://docs.microsoft.com/rest/api/maps/weather/get-current-conditions" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${!weather ? 'visually-hidden' : ''}" ><img width="32" height="32" class="flex-shrink-0" src="/images/icons/weather-black/${weather.iconCode}.png"/><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">${weather.phrase}</h6><p class="mb-0 opacity-75 text-wrap">Temperature ${weather.temperature.value}&#176;${weather.temperature.unit} and feels like ${weather.realFeelTemperature.value}&#176;${weather.realFeelTemperature.unit}</p></div><small class="opacity-50 text-nowrap">Weather</small></div></a><a target="_blank" href="https://docs.microsoft.com//rest/api/maps/weather/get-current-air-quality" class="list-group-item list-group-item-action d-flex gap-3 py-3 ${!airQuality ? 'visually-hidden' : ''}" ><svg width="32" height="32" class="flex-shrink-0"><use xlink:href="#balloon-icon" /></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">${airQuality.category}</h6><p class="mb-0 opacity-75 text-wrap">${airQuality.description}</p></div><small class="opacity-50 text-nowrap">Air Quality</small></div></a></div></div><div class="card-footer text-muted">${dist} km away from ${userPositionUpdated === true ? 'you' : 'the Tower of London'}</div></div>`;
 
     popup.setOptions({
         position: position,
@@ -569,7 +611,7 @@ function loadRadarLayer() {
 
         map.layers.add(radarLayer, 'labels');
     } else {
-        radarButton.className = 'btn btn-light';
+        radarButton.className = 'btn btn-outline-secondary';
 
         map.layers.remove(radarLayer);
         radarLayer = null;
@@ -606,7 +648,7 @@ function loadInfraredLayer() {
 
         map.layers.add(infraredLayer, 'labels');
     } else {
-        infraredButton.className = 'btn btn-light';
+        infraredButton.className = 'btn btn-outline-secondary';
 
         map.layers.remove(infraredLayer);
         infraredLayer = null;
@@ -671,7 +713,7 @@ function loadContoursLayer() {
         map.layers.add([contourLayer, contourNumbersLayer], 'labels');
 
     } else {
-        contoursButton.className = 'btn btn-light';
+        contoursButton.className = 'btn btn-outline-secondary';
 
         map.layers.remove([contourLayer, contourNumbersLayer]);
         contourNumbersLayer, contourLayer = null;
@@ -685,7 +727,7 @@ function loadContoursLayer() {
 // This is a reusable function that sets the Azure Maps platform domain,
 // sings the request, and makes use of any transformRequest set on the map.
 function processRequest(url) {
-    
+
     return new Promise((resolve, reject) => {
         // Replace the domain placeholder to ensure the same Azure Maps cloud is used throughout the app.
         url = url.replace('{azMapsDomain}', atlas.getDomain());
