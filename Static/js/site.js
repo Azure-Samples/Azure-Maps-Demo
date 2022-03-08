@@ -65,6 +65,9 @@ function GetMap() {
         }
     });
 
+    var elm = document.getElementById('search-country');
+    elm.addEventListener("change", search);
+
     // Use MapControlCredential to share authentication between a map control and the service module.
     var pipeline = atlas.service.MapsURL.newPipeline(new atlas.service.MapControlCredential(map));
     routeURL = new atlas.service.RouteURL(pipeline);
