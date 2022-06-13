@@ -18,27 +18,27 @@
 <body onload="GetMap()" class="d-flex flex-column h-100">
     <!-- Icons from https://icons.getbootstrap.com/ -->
     <svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-        <symbol id="search-icon" viewBox="0 0 16 16" fill="black">
+        <symbol id="search-icon" viewBox="0 0 16 16" fill="currentColor">
             <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z" />
         </symbol>
-        <symbol id="phone-icon" viewBox="0 0 16 16" fill="black">
+        <symbol id="phone-icon" viewBox="0 0 16 16" fill="currentColor">
             <path d="M11 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h6zM5 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H5z" />
             <path d="M8 14a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" />
         </symbol>
-        <symbol id="link-icon" viewBox="0 0 16 16" fill="black">
+        <symbol id="link-icon" viewBox="0 0 16 16" fill="currentColor">
             <path d="M6.354 5.5H4a3 3 0 0 0 0 6h3a3 3 0 0 0 2.83-4H9c-.086 0-.17.01-.25.031A2 2 0 0 1 7 10.5H4a2 2 0 1 1 0-4h1.535c.218-.376.495-.714.82-1z" />
             <path d="M9 5.5a3 3 0 0 0-2.83 4h1.098A2 2 0 0 1 9 6.5h3a2 2 0 1 1 0 4h-1.535a4.02 4.02 0 0 1-.82 1H12a3 3 0 1 0 0-6H9z" />
         </symbol>
-        <symbol id="bullseye-icon" viewBox="0 0 16 16" fill="black">
+        <symbol id="bullseye-icon" viewBox="0 0 16 16" fill="currentColor">
             <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z" />
             <path d="M8 13A5 5 0 1 1 8 3a5 5 0 0 1 0 10zm0 1A6 6 0 1 0 8 2a6 6 0 0 0 0 12z" />
             <path d="M8 11a3 3 0 1 1 0-6 3 3 0 0 1 0 6zm0 1a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />
             <path d="M9.5 8a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z" />
         </symbol>
-        <symbol id="cursor-icon" viewBox="0 0 16 16" fill="black">
+        <symbol id="cursor-icon" viewBox="0 0 16 16" fill="currentColor">
             <path d="M14.082 2.182a.5.5 0 0 1 .103.557L8.528 15.467a.5.5 0 0 1-.917-.007L5.57 10.694.803 8.652a.5.5 0 0 1-.006-.916l12.728-5.657a.5.5 0 0 1 .556.103zM2.25 8.184l3.897 1.67a.5.5 0 0 1 .262.263l1.67 3.897L12.743 3.52 2.25 8.184z" />
         </symbol>
-        <symbol id="truck-icon" viewBox="0 0 16 16" fill="black">
+        <symbol id="truck-icon" viewBox="0 0 16 16" fill="currentColor">
             <path d="M0 3.5A1.5 1.5 0 0 1 1.5 2h9A1.5 1.5 0 0 1 12 3.5V5h1.02a1.5 1.5 0 0 1 1.17.563l1.481 1.85a1.5 1.5 0 0 1 .329.938V10.5a1.5 1.5 0 0 1-1.5 1.5H14a2 2 0 1 1-4 0H5a2 2 0 1 1-3.998-.085A1.5 1.5 0 0 1 0 10.5v-7zm1.294 7.456A1.999 1.999 0 0 1 4.732 11h5.536a2.01 2.01 0 0 1 .732-.732V3.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5v7a.5.5 0 0 0 .294.456zM12 10a2 2 0 0 1 1.732 1h.768a.5.5 0 0 0 .5-.5V8.35a.5.5 0 0 0-.11-.312l-1.48-1.85A.5.5 0 0 0 13.02 6H12v4zm-9 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm9 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" />
         </symbol>
         <symbol id="geo-icon" viewBox="0 0 16 16" fill="#517CED">
@@ -57,21 +57,21 @@
             <path d="M8 16.016a7.5 7.5 0 0 0 1.962-14.74A1 1 0 0 0 9 0H7a1 1 0 0 0-.962 1.276A7.5 7.5 0 0 0 8 16.016zm6.5-7.5a6.5 6.5 0 1 1-13 0 6.5 6.5 0 0 1 13 0z" />
             <path d="m6.94 7.44 4.95-2.83-2.83 4.95-4.949 2.83 2.828-4.95z" />
         </symbol>
-        <symbol id="balloon-icon" viewBox="0 0 16 16" fill="black">
+        <symbol id="balloon-icon" viewBox="0 0 16 16" fill="currentColor">
             <path fill-rule="evenodd" d="M8 9.984C10.403 9.506 12 7.48 12 5a4 4 0 0 0-8 0c0 2.48 1.597 4.506 4 4.984ZM13 5c0 2.837-1.789 5.227-4.52 5.901l.244.487a.25.25 0 1 1-.448.224l-.008-.017c.008.11.02.202.037.29.054.27.161.488.419 1.003.288.578.235 1.15.076 1.629-.157.469-.422.867-.588 1.115l-.004.007a.25.25 0 1 1-.416-.278c.168-.252.4-.6.533-1.003.133-.396.163-.824-.049-1.246l-.013-.028c-.24-.48-.38-.758-.448-1.102a3.177 3.177 0 0 1-.052-.45l-.04.08a.25.25 0 1 1-.447-.224l.244-.487C4.789 10.227 3 7.837 3 5a5 5 0 0 1 10 0Zm-6.938-.495a2.003 2.003 0 0 1 1.443-1.443C7.773 2.994 8 2.776 8 2.5c0-.276-.226-.504-.498-.459a3.003 3.003 0 0 0-2.46 2.461c-.046.272.182.498.458.498s.494-.227.562-.495Z" />
         </symbol>
-        <symbol id="thermometer-icon" viewBox="0 0 16 16" fill="black">
+        <symbol id="thermometer-icon" viewBox="0 0 16 16" fill="currentColor">
             <path d="M5 12.5a1.5 1.5 0 1 1-2-1.415V2.5a.5.5 0 0 1 1 0v8.585A1.5 1.5 0 0 1 5 12.5z" />
             <path d="M1 2.5a2.5 2.5 0 0 1 5 0v7.55a3.5 3.5 0 1 1-5 0V2.5zM3.5 1A1.5 1.5 0 0 0 2 2.5v7.987l-.167.15a2.5 2.5 0 1 0 3.333 0L5 10.486V2.5A1.5 1.5 0 0 0 3.5 1zm5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5zm4.243 1.757a.5.5 0 0 1 0 .707l-.707.708a.5.5 0 1 1-.708-.708l.708-.707a.5.5 0 0 1 .707 0zM8 5.5a.5.5 0 0 1 .5-.5 3 3 0 1 1 0 6 .5.5 0 0 1 0-1 2 2 0 0 0 0-4 .5.5 0 0 1-.5-.5zM12.5 8a.5.5 0 0 1 .5-.5h1a.5.5 0 1 1 0 1h-1a.5.5 0 0 1-.5-.5zm-1.172 2.828a.5.5 0 0 1 .708 0l.707.708a.5.5 0 0 1-.707.707l-.708-.707a.5.5 0 0 1 0-.708zM8.5 12a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-1 0v-1a.5.5 0 0 1 .5-.5z" />
         </symbol>
-        <symbol id="cloud-icon" viewBox="0 0 16 16" fill="black">
+        <symbol id="cloud-icon" viewBox="0 0 16 16" fill="currentColor">
             <path d="M4.158 12.025a.5.5 0 0 1 .316.633l-.5 1.5a.5.5 0 0 1-.948-.316l.5-1.5a.5.5 0 0 1 .632-.317zm6 0a.5.5 0 0 1 .316.633l-.5 1.5a.5.5 0 0 1-.948-.316l.5-1.5a.5.5 0 0 1 .632-.317zm-3.5 1.5a.5.5 0 0 1 .316.633l-.5 1.5a.5.5 0 0 1-.948-.316l.5-1.5a.5.5 0 0 1 .632-.317zm6 0a.5.5 0 0 1 .316.633l-.5 1.5a.5.5 0 1 1-.948-.316l.5-1.5a.5.5 0 0 1 .632-.317zm.747-8.498a5.001 5.001 0 0 0-9.499-1.004A3.5 3.5 0 1 0 3.5 11H13a3 3 0 0 0 .405-5.973zM8.5 2a4 4 0 0 1 3.976 3.555.5.5 0 0 0 .5.445H13a2 2 0 0 1 0 4H3.5a2.5 2.5 0 1 1 .605-4.926.5.5 0 0 0 .596-.329A4.002 4.002 0 0 1 8.5 2z" />
         </symbol>
-        <symbol id="contours-icon" viewBox="0 0 16 16" fill="black">
+        <symbol id="contours-icon" viewBox="0 0 16 16" fill="currentColor">
             <path d="m14.12 10.163 1.715.858c.22.11.22.424 0 .534L8.267 15.34a.598.598 0 0 1-.534 0L.165 11.555a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.66zM7.733.063a.598.598 0 0 1 .534 0l7.568 3.784a.3.3 0 0 1 0 .535L8.267 8.165a.598.598 0 0 1-.534 0L.165 4.382a.299.299 0 0 1 0-.535L7.733.063z" />
             <path d="m14.12 6.576 1.715.858c.22.11.22.424 0 .534l-7.568 3.784a.598.598 0 0 1-.534 0L.165 7.968a.299.299 0 0 1 0-.534l1.716-.858 5.317 2.659c.505.252 1.1.252 1.604 0l5.317-2.659z" />
         </symbol>
-        <symbol id="clock-icon" viewBox="0 0 16 16" fill="black">
+        <symbol id="clock-icon" viewBox="0 0 16 16" fill="currentColor">
             <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z" />
             <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z" />
         </symbol>
@@ -136,7 +136,7 @@
         </div>
 
         <div id="search">
-            <div class="card-body">
+            <div class="card-body m-3">
                 <div class="d-flex gap-2 w-100 mb-3 pb-3 justify-content-between border-bottom">
                     <button title="Locate Me" id="locate-me-button" type="button" class="btn btn-outline-secondary">
                         <svg id="locate-me-icon" width="1.0em" height="1.0em"><use xlink:href="#bullseye-icon" /></svg>
@@ -164,7 +164,7 @@
                 </div>
                 <label for="search-country" class="form-label">Filter the results for the country</label>
                 <div class="input-group mb-3">
-                    <select id="search-country" class="form-select">
+                    <select id="search-country" class="form-select" aria-label="Filter the results for the country">
                         <option value="AF">Afghanistan</option>
                         <option value="AX">Åland Islands</option>
                         <option value="AL">Albania</option>
@@ -425,12 +425,12 @@
     <footer class="footer mt-auto py-2 pt-0 bg-white">
         <div class="container pt-1">
             <ul class="nav float-end">
-                <li class="nav-item"><a href="https://go.microsoft.com/fwlink/?LinkId=521839" class="nav-link px-2 text-black" title="Terms of use">Terms of use</a></li>
-                <li class="nav-item"><a href="https://go.microsoft.com/fwlink/?LinkID=206977" class="nav-link px-2 text-black" title="Privacy">Privacy</a></li>
-                <li class="nav-item"><a href="#" onclick="siteConsent.manageConsent()" class="nav-link px-2 text-black" title="Manage cookies">Manage cookies</a></li>
+                <li class="nav-item"><a href="https://go.microsoft.com/fwlink/?LinkId=521839" class="nav-link px-2 text-body" title="Terms of use">Terms of use</a></li>
+                <li class="nav-item"><a href="https://go.microsoft.com/fwlink/?LinkID=206977" class="nav-link px-2 text-body" title="Privacy">Privacy</a></li>
+                <li class="nav-item"><a href="#" onclick="siteConsent.manageConsent()" class="nav-link px-2 text-body" title="Manage cookies">Manage cookies</a></li>
             </ul>
-            <p class="mb-0">Azure Maps &copy; <a href="https://www.microsoft.com/" title="Microsoft Corporation" class="link-secondary">Microsoft</a>, but please <a href="https://github.com/Azure-Samples/Azure-Maps-Demo" title="GitHub" class="link-secondary">download</a> and customize it for yourself!</p>
-            <p class="mb-0">New to Azure Maps? <a href="https://azuremaps.com" title="About Azure Maps" class="link-secondary">Visit the homepage</a> or read our <a href="https://aka.ms/AzureMapsGettingStarted" title="Getting started guide">getting started guide</a>.</p>
+            <p class="mb-0 text-body">Azure Maps &copy; <a href="https://www.microsoft.com/" title="Microsoft Corporation" class="link-secondary">Microsoft</a>, but please <a href="https://github.com/Azure-Samples/Azure-Maps-Demo" title="GitHub" class="link-secondary">download</a> and customize it for yourself!</p>
+            <p class="mb-0 text-body">New to Azure Maps? <a href="https://azuremaps.com" title="About Azure Maps" class="link-secondary">Visit the homepage</a> or read our <a href="https://aka.ms/AzureMapsGettingStarted" title="Getting started guide">getting started guide</a>.</p>
         </div>
     </footer>
 
