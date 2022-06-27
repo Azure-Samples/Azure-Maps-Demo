@@ -131,7 +131,7 @@
 
     <main class="flex-fill">
 
-        <div id="demoMap" class="container-fluid p-0 m-0 w-100 h-100">
+        <div id="demoMap" class="container-fluid p-0 m-0 w-100 h-100" tabindex="200" role="application">
             <noscript>You need to enable JavaScript to run this app.</noscript>
         </div>
 
@@ -160,11 +160,11 @@
                     <span class="input-group-text">
                         <svg class="flex-shrink-0" width="1.0em" height="1.0em"><use xlink:href="#search-icon" /></svg>
                     </span>
-                    <input id="search-input" type="search" class="form-control" placeholder="like restaurant or hotels...">
+                    <input id="search-input" type="search" tabindex="100" class="form-control" placeholder="like restaurant or hotels...">
                 </div>
                 <label for="search-country" class="form-label">Filter the results for the country</label>
                 <div class="input-group mb-3">
-                    <select id="search-country" class="form-select" aria-label="Filter the results for the country">
+                    <select id="search-country" tabindex="101" class="form-select" aria-label="Filter the results for the country">
                         <option value="AF">Afghanistan</option>
                         <option value="AX">Åland Islands</option>
                         <option value="AL">Albania</option>
@@ -417,7 +417,7 @@
                     </select>
                 </div>
             </div>
-            <div id="results-panel" class="list-group"></div>
+            <div id="results-panel" tabindex="102" class="list-group"></div>
         </div>
 
     </main>
@@ -425,12 +425,12 @@
     <footer class="footer mt-auto py-2 pt-0 bg-white">
         <div class="container pt-1">
             <ul class="nav float-end">
-                <li class="nav-item"><a href="https://go.microsoft.com/fwlink/?LinkId=521839" class="nav-link px-2 text-body" title="Terms of use">Terms of use</a></li>
-                <li class="nav-item"><a href="https://go.microsoft.com/fwlink/?LinkID=206977" class="nav-link px-2 text-body" title="Privacy">Privacy</a></li>
-                <li class="nav-item"><a href="#" onclick="siteConsent.manageConsent()" class="nav-link px-2 text-body" title="Manage cookies">Manage cookies</a></li>
+                <li class="nav-item"><a href="https://go.microsoft.com/fwlink/?LinkId=521839" tabindex="304" class="nav-link px-2 text-body" title="Terms of use">Terms of use</a></li>
+                <li class="nav-item"><a href="https://go.microsoft.com/fwlink/?LinkID=206977" tabindex="305" class="nav-link px-2 text-body" title="Privacy">Privacy</a></li>
+                <li class="nav-item"><a href="#" onclick="siteConsent.manageConsent()" tabindex="306" class="nav-link px-2 text-body" title="Manage cookies">Manage cookies</a></li>
             </ul>
-            <p class="mb-0 text-body">Azure Maps &copy; <a href="https://www.microsoft.com/" title="Microsoft Corporation" class="link-secondary">Microsoft</a>, but please <a href="https://github.com/Azure-Samples/Azure-Maps-Demo" title="GitHub" class="link-secondary">download</a> and customize it for yourself!</p>
-            <p class="mb-0 text-body">New to Azure Maps? <a href="https://azuremaps.com" title="About Azure Maps" class="link-secondary">Visit the homepage</a> or read our <a href="https://aka.ms/AzureMapsGettingStarted" title="Getting started guide">getting started guide</a>.</p>
+            <p class="mb-0 text-body">Azure Maps &copy; <a href="https://www.microsoft.com/" tabindex="300" title="Microsoft Corporation" class="link-secondary">Microsoft</a>, but please <a href="https://github.com/Azure-Samples/Azure-Maps-Demo" tabindex="301" title="GitHub" class="link-secondary">download</a> and customize it for yourself!</p>
+            <p class="mb-0 text-body">New to Azure Maps? <a href="https://azuremaps.com" tabindex="302" title="About Azure Maps" class="link-secondary">Visit the homepage</a> or read our <a href="https://aka.ms/AzureMapsGettingStarted" tabindex="303" title="Getting started guide">getting started guide</a>.</p>
         </div>
     </footer>
 
