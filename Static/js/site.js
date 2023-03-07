@@ -13,7 +13,6 @@ var searchInput, locateMeButton, resultsPanel, searchInputLength, radarButton, i
 // Default location: Tower of London
 var userPosition = [-0.076083, 51.508120];
 var userPositionUpdated = false;
-var firsttimeContourLines = true;
 var layerStyle = 'road';
 var centerMapOnResults = false;
 
@@ -29,8 +28,6 @@ function GetMap() {
     map = new atlas.Map('demoMap', {
         center: userPosition,
         zoom: 16,
-        pitch: 60,
-        showBuildingModels: true,
         view: 'Auto',
         style: layerStyle,
 
@@ -82,9 +79,6 @@ function GetMap() {
 
     infraredButton = document.getElementById("infrared-button");
     infraredButton.addEventListener("click", loadInfraredLayer);
-
-    contoursButton = document.getElementById("contours-button");
-    contoursButton.addEventListener("click", loadContoursLayer);
 
     clearButton = document.getElementById("clearmap-button");
     clearButton.addEventListener("click", function () {
@@ -655,71 +649,6 @@ function loadInfraredLayer() {
 
         map.layers.remove(infraredLayer);
         infraredLayer = null;
-
-        map.setStyle({
-            style: layerStyle
-        });
-    }
-}
-
-function loadContoursLayer() {
-
-    if (!contourLayer) {
-
-        contoursButton.className = 'btn btn-warning';
-
-        layerStyle = map.getStyle().style;
-        map.setStyle({
-            style: 'grayscale_dark'
-        });
-
-        if (firsttimeContourLines === true) {
-
-            map.setCamera({
-                center: [6, 46],
-                zoom: 13,
-                pitch: 0,
-                bearing: 0
-            });
-
-            firsttimeContourLines = false;
-        }
-
-        var contourDS = new atlas.source.VectorTileSource(null, {
-            tiles: [tileUrl.replace('{tilesetId}', 'microsoft.dem.contours').replace('{tileSize}', '512')],
-            minZoom: 9,
-            maxZoom: 14
-        });
-        map.sources.add(contourDS);
-
-        contourLayer = new atlas.layer.LineLayer(contourDS, null, {
-            sourceLayer: 'Elevation Contour Lines',
-            strokeColor: 'yellow',
-            strokeWidth: 2
-        });
-
-        contourNumbersLayer = new atlas.layer.SymbolLayer(contourDS, null, {
-            sourceLayer: 'Elevation Contour Lines',
-            lineSpacing: 100,
-            placement: 'line',
-            iconOptions: {
-                image: 'none'
-            },
-            textOptions: {
-                haloColor: 'white',
-                haloWidth: 1.4,
-                size: 15,
-                textField: ['get', 'elevationMeters']
-            }
-        });
-
-        map.layers.add([contourLayer, contourNumbersLayer], 'labels');
-
-    } else {
-        contoursButton.className = 'btn btn-outline-secondary';
-
-        map.layers.remove([contourLayer, contourNumbersLayer]);
-        contourNumbersLayer, contourLayer = null;
 
         map.setStyle({
             style: layerStyle
