@@ -668,7 +668,7 @@ function processRequest(url) {
         var requestParams = map.authentication.signRequest({ url: url });
 
         // Transform the request.
-        var transform = map.getServiceOptions().tranformRequest;
+        var transform = map.getServiceOptions().transformRequest;
         if (transform) {
             requestParams = transform(url);
         }
