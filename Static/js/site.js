@@ -348,7 +348,9 @@ function search() {
             r.properties.icon = icon;
             r.properties.layer = 'searchLayer';
 
-            html += `<a href="#" class="list-group-item list-group-item-action d-flex gap-3 py-3" onclick="itemClicked('${r.id}')" onmouseover="itemHovered('${r.id}')"><svg class="flex-shrink-0" width="2.0em" height="2.0em"><use xlink:href="#${icon}" /></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">${name}</h6><p class="mb-0 opacity-75">${r.properties.address.freeformAddress}</p></div><small class="text-nowrap">${dist} km</small></div></a>`;
+            var tbid = 230 + i;
+
+            html += `<a href="#" tabindex="${tbid}" class="list-group-item list-group-item-action d-flex gap-3 py-3" onclick="itemClicked('${r.id}')" onmouseover="itemHovered('${r.id}')"><svg class="flex-shrink-0" width="2.0em" height="2.0em"><use xlink:href="#${icon}" /></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">${name}</h6><p class="mb-0 opacity-75">${r.properties.address.freeformAddress}</p></div><small class="text-nowrap">${dist} km</small></div></a>`;
         }
         resultsPanel.innerHTML = html;
 

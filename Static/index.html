@@ -76,10 +76,11 @@
         </symbol>
     </svg>
 
-    <header>
-        <nav class="navbar navbar-expand-md navbar-dark d-flex bg-dark">
+    <header tabindex="100">
+        <a href="#main" tabindex="101" class="m-skip-to-main">Skip to main content</a>
+        <nav class="navbar navbar-expand-md navbar-dark d-flex" style="background-color:black;">
             <div class="container-fluid">
-                <a class="navbar-brand" href="/" title="Azure Maps Demo">
+                <a class="navbar-brand" href="/" tabindex="102" title="Azure Maps Demo">
                     <svg width="20" height="20" class="me-2 mb-1" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M32.2448 35.7947C23.525 42.5775 10.9868 40.9815 4.20483 32.2608C-2.57719 23.5401 -0.981434 11.0005 7.7383 4.21768C7.7953 4.16068 7.85228 4.10369 7.96627 4.04669C16.743 -2.6221 29.2812 -0.855162 35.9492 7.92256C42.5603 16.7003 40.9075 29.0689 32.2448 35.7947Z" fill="url(#paint0_linear)" />
                         <path d="M23.183 5.35754L8.30811 29.0118L26.9444 21.773L23.183 5.35754Z" fill="#9CEBFF" />
@@ -101,19 +102,19 @@
                 <div class="collapse navbar-collapse" id="navbarCollapse">
                     <ul class="navbar-nav me-auto mb-2 mb-md-0">
                         <li class="nav-item">
-                            <a class="nav-link" target="_blank" href="https://azuremaps.com" title="About Azure Maps">About</a>
+                            <a class="nav-link" tabindex="103" target="_blank" href="https://azuremaps.com" title="About Azure Maps">About</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" target="_blank" href="https://docs.azuremaps.com" title="Azure Maps Documentation">Docs</a>
+                            <a class="nav-link" tabindex="104" target="_blank" href="https://docs.azuremaps.com" title="Azure Maps Documentation">Docs</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" target="_blank" href="https://samples.azuremaps.com" title="Azure Maps Code Samples">Samples</a>
+                            <a class="nav-link" tabindex="105" target="_blank" href="https://samples.azuremaps.com" title="Azure Maps Code Samples">Samples</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" target="_blank" href="https://blog.azuremaps.com" title="Azure Maps Blog">Blog</a>
+                            <a class="nav-link" tabindex="106" target="_blank" href="https://blog.azuremaps.com" title="Azure Maps Blog">Blog</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" target="_blank" href="https://updates.azuremaps.com" title="Azure Maps Updates">Updates</a>
+                            <a class="nav-link" tabindex="107" target="_blank" href="https://updates.azuremaps.com" title="Azure Maps Updates">Updates</a>
                         </li>
                     </ul>
                 </div>
@@ -121,30 +122,30 @@
         </nav>
     </header>
 
+
+
     <div class="container-fluid p-0">
         <div id="cookie-banner"></div>
     </div>
 
-    <main class="flex-fill">
+    <main class="flex-fill" id="main" tabindex="200">
 
-        <div id="demoMap" class="container-fluid p-0 m-0 w-100 h-100" tabindex="200" role="application">
-            <noscript>You need to enable JavaScript to run this app.</noscript>
-        </div>
+        <div id="demoMap" tabindex="201" class="container-fluid p-0 m-0 w-100 h-100" role="application"></div>
 
-        <div id="search">
+        <div id="search" tabindex="210">
             <div class="card-body m-3">
                 <div class="d-flex gap-2 w-100 mb-3 pb-3 justify-content-between border-bottom">
-                    <button title="Locate Me" id="locate-me-button" type="button" class="btn btn-outline-secondary">
+                    <button title="Locate Me" tabindex="211" id="locate-me-button" type="button" class="btn btn-outline-secondary">
                         <svg id="locate-me-icon" width="1.0em" height="1.0em"><use xlink:href="#bullseye-icon" /></svg>
                         <span id="locate-me-spinner" class="spinner-grow spinner-grow-sm" style="display:none" role="status" aria-hidden="true"></span>
                     </button>
-                    <button title="Weather Radar" id="radar-button" type="button" data-bs-toggle="button" class="btn btn-outline-secondary">
+                    <button title="Weather Radar" tabindex="212" id="radar-button" type="button" data-bs-toggle="button" class="btn btn-outline-secondary">
                         <svg width="1.0em" height="1.0em"><use xlink:href="#cloud-icon" /></svg>
                     </button>
-                    <button title="Weather Infrared" id="infrared-button" type="button" data-bs-toggle="button" class="btn btn-outline-secondary">
+                    <button title="Weather Infrared" tabindex="213" id="infrared-button" type="button" data-bs-toggle="button" class="btn btn-outline-secondary">
                         <svg width="1.0em" height="1.0em"><use xlink:href="#thermometer-icon" /></svg>
                     </button>
-                    <button title="Clear the map" id="clearmap-button" type="button" class="btn btn-outline-danger">
+                    <button title="Clear the map" tabindex="214" id="clearmap-button" type="button" class="btn btn-outline-danger">
                         <svg width="1.0em" height="1.0em"><use xlink:href="#trash-icon" /></svg>
                     </button>
                 </div>
@@ -153,11 +154,11 @@
                     <span class="input-group-text">
                         <svg class="flex-shrink-0" width="1.0em" height="1.0em"><use xlink:href="#search-icon" /></svg>
                     </span>
-                    <input id="search-input" type="search" tabindex="100" class="form-control" placeholder="like restaurant or hotels...">
+                    <input id="search-input" tabindex="215" type="search" class="form-control form-control-lg" placeholder="like restaurant or hotels...">
                 </div>
                 <label for="search-country" class="form-label">Filter the results for the country</label>
                 <div class="input-group mb-3">
-                    <select id="search-country" tabindex="101" class="form-select" aria-label="Filter the results for the country">
+                    <select id="search-country" tabindex="216" class="form-select form-select-lg" aria-label="Filter the results for the country">
                         <option value="AF">Afghanistan</option>
                         <option value="AX">Åland Islands</option>
                         <option value="AL">Albania</option>
@@ -410,21 +411,21 @@
                     </select>
                 </div>
             </div>
-            <div id="results-panel" tabindex="102" class="list-group"></div>
+            <div id="results-panel" tabindex="217" class="list-group"></div>
         </div>
 
     </main>
 
-    <footer class="footer mt-auto py-2 pt-0 bg-white">
+    <footer class="footer mt-auto py-2 pt-0 bg-white" tabindex="300">
         <div class="container pt-1">
             <ul class="nav float-end">
-                <li class="nav-item"><a href="https://go.microsoft.com/fwlink/?LinkId=206977" tabindex="304" class="nav-link px-2 text-body" title="Terms of use">Terms of use</a></li>
-                <li class="nav-item"><a href="https://go.microsoft.com/fwlink/?LinkID=521839" tabindex="305" class="nav-link px-2 text-body" title="Privacy">Privacy</a></li>
-                <li class="nav-item"><a href="https://go.microsoft.com/fwlink/?linkid=2259814" tabindex="306" class="nav-link px-2 text-body" title="Consumer Health Privacy">Consumer Health Privacy</a></li>
-                <li class="nav-item"><a href="#" onclick="siteConsent.manageConsent()" tabindex="307" class="nav-link px-2 text-body" title="Manage cookies">Manage cookies</a></li>
+                <li class="nav-item"><a href="https://go.microsoft.com/fwlink/?LinkId=206977" tabindex="311" class="nav-link px-2 text-body" title="Terms of use">Terms of use</a></li>
+                <li class="nav-item"><a href="https://go.microsoft.com/fwlink/?LinkID=521839" tabindex="312" class="nav-link px-2 text-body" title="Privacy">Privacy</a></li>
+                <li class="nav-item"><a href="https://go.microsoft.com/fwlink/?linkid=2259814" tabindex="313" class="nav-link px-2 text-body" title="Consumer Health Privacy">Consumer Health Privacy</a></li>
+                <li class="nav-item"><a href="#" onclick="siteConsent.manageConsent()" tabindex="314" class="nav-link px-2 text-body" title="Manage cookies">Manage cookies</a></li>
             </ul>
-            <p class="mb-0 text-body">Azure Maps &copy; <a href="https://www.microsoft.com/" tabindex="300" title="Microsoft Corporation" class="link-secondary">Microsoft</a>, but please <a href="https://github.com/Azure-Samples/Azure-Maps-Demo" tabindex="301" title="GitHub" class="link-secondary">download</a> and customize it for yourself!</p>
-            <p class="mb-0 text-body">New to Azure Maps? <a href="https://azuremaps.com" tabindex="302" title="About Azure Maps" class="link-secondary">Visit the homepage</a> or read our <a href="https://aka.ms/AzureMapsGettingStarted" tabindex="303" title="Getting started guide">getting started guide</a>.</p>
+            <p class="mb-0 text-body">Azure Maps &copy; <a href="https://www.microsoft.com/" tabindex="301" title="Microsoft Corporation" class="link-secondary">Microsoft</a>, but please <a href="https://github.com/Azure-Samples/Azure-Maps-Demo" tabindex="302" title="GitHub" class="link-secondary">download</a> and customize it for yourself!</p>
+            <p class="mb-0 text-body">New to Azure Maps? <a href="https://azuremaps.com" tabindex="303" title="About Azure Maps" class="link-secondary">Visit the homepage</a> or read our <a href="https://aka.ms/AzureMapsGettingStarted" tabindex="304" title="Getting started guide">getting started guide</a>.</p>
         </div>
     </footer>
 
