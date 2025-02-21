@@ -314,6 +314,7 @@ function search() {
 
         //Create the HTML for the results list.
         var html = "";
+        var count = 0;
         for (var i = 0; i < data.features.length; i++) {
             var r = data.features[i];
 
@@ -351,8 +352,10 @@ function search() {
             var tbid = 230 + i;
 
             html += `<a href="#" tabindex="${tbid}" class="list-group-item list-group-item-action d-flex gap-3 py-3" onclick="itemClicked('${r.id}')" onmouseover="itemHovered('${r.id}')"><svg class="flex-shrink-0" width="2.0em" height="2.0em"><use xlink:href="#${icon}" /></svg><div class="d-flex gap-2 w-100 justify-content-between"><div><h6 class="mb-0">${name}</h6><p class="mb-0 opacity-75">${r.properties.address.freeformAddress}</p></div><small class="text-nowrap">${dist} km</small></div></a>`;
+            count++;
         }
         resultsPanel.innerHTML = html;
+        document.getElementById('resultsCount').innerHTML = count > 0 ? `<p>${count} results are available, use tab key to navigate.</p>`: '<p>Sorry, no results matching your search criteria were found.</p>';
 
         datasource.add(data);
 
