@@ -81,6 +81,10 @@
         -webkit-overflow-scrolling: touch;
     }
 
+li.nav-item a.nav-link:focus {
+    outline: 2px solid #4382DF;
+}
+
 .btn-bd-primary {
     --bd-violet-bg: #712cf9;
     --bd-violet-rgb: 112.520718, 44.062154, 249.437846;
