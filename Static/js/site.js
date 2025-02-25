@@ -355,7 +355,7 @@ function search() {
             count++;
         }
         resultsPanel.innerHTML = html;
-        document.getElementById('resultsCount').innerHTML = count > 0 ? `<p>${count} result${count === 1 ? ' is' : 's are'} available. Use the tab key to navigate.</p>`: '<p>Sorry, we couldn't find any results that match your search criteria.</p>';
+        document.getElementById('resultsCount').innerHTML = count > 0 ? `<p>${count} result${count === 1 ? ' is' : 's are'} available. Use the tab key to navigate.</p>`: '<p>Sorry, we couldn\'t find any results that match your search criteria.</p>';
 
         datasource.add(data);
 
