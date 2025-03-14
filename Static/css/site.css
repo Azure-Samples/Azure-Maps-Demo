@@ -19,8 +19,17 @@
 }
 
 @media only screen and (max-width: 640px) {
+    #demoMap {
+        height: 80vh !important;
+    }
+
     #search {
-        display: none;
+        position: static;
+        max-width: 100vw;
+    }
+
+    #results-panel {
+        max-height: 320px;
     }
 
     footer {
