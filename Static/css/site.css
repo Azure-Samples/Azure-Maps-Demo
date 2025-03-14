@@ -101,6 +101,14 @@ li.nav-item a.nav-link:focus {
     --bs-btn-active-border-color: #5a23c8;
 }
 
+/* Adjust the focus style for high contrast theme */
+@media (forced-colors: active) {
+    .btn:focus {
+        outline: 2px solid #25cff2;
+        outline-offset: 0px;
+    }
+}
+
 .bd-mode-toggle {
     z-index: 1500;
 }
